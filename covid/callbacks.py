@@ -8,6 +8,7 @@ from .data import get_italy_map_region, get_italy_regional_data, get_time_data
 map_data = get_italy_map_region()
 df = get_italy_regional_data()
 
+
 def generate_choropleth(value):
     fig = px.choropleth_mapbox(
         df,
@@ -16,7 +17,7 @@ def generate_choropleth(value):
         locations="codice_regione",
         # color="terapia_intensiva",
         color=value,
-        center={'lon': 12, 'lat':42}, 
+        center={"lon": 12, "lat": 42},
         featureidkey="properties.reg_istat_code",
         hover_name="denominazione_regione",
         hover_data=[
@@ -33,15 +34,15 @@ def generate_choropleth(value):
             # "tamponi",
         ],
         zoom=4.7,
-        title=value.replace('_', ''),
-        mapbox_style='carto-positron',
+        title=value.replace("_", ""),
+        mapbox_style="carto-positron",
         # projection="equirectangular",
         color_continuous_scale="Pinkyl",
         # range_color=(0, 12),
         # scope="europe",
         # labels={"value": "something"},
         # width=900,
-        height=600
+        height=600,
     )
     # fig.update_geos(fitbounds="locations", visible=False, overwrite=True)
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
@@ -50,7 +51,7 @@ def generate_choropleth(value):
 
 def generate_plot(value="totale_positivi"):
     df = get_time_data()
-    return px.line(df, x="data", y=value, color='denominazione_regione')
+    return px.line(df, x="data", y=value, color="denominazione_regione")
 
 
 def set_callbacks(app: Dash):

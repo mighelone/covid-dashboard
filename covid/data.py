@@ -53,6 +53,7 @@ def get_singlefile(date):
     else:
         return df
 
+
 def get_time_data() -> pd.DataFrame:
     today = dt.date.today()
     fname: Path = data_path / "../data/historical_region.json"
@@ -65,16 +66,14 @@ def get_time_data() -> pd.DataFrame:
             pd.concat(
                 [
                     get_singlefile(day)
-                    for day in pd.date_range(
-                        start="2020-02-24", end=today, freq="D"
-                    )
+                    for day in pd.date_range(start="2020-02-24", end=today, freq="D")
                 ]
             )
             .astype({"data": np.datetime64})
             .sort_values(["codice_regione", "data"])
         )
         # import pdb; pdb.set_trace()
-        df.to_json(fname, orient='records', date_format='iso').astype({"data": np.datetime64})
+        df.to_json(fname, orient="records", date_format="iso").astype(
+            {"data": np.datetime64}
+        )
     return df
-
-

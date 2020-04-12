@@ -53,20 +53,15 @@ def set_layout(app: Dash):
                             ),
                         ],
                         # align="center",
-                        width={'size': 6}
+                        width={"size": 6}
                         # width={"size": 6, "offset": 0},
                     ),
                     dbc.Col(
-                        [
-                            dcc.Graph(
-                                id="line-plot",
-                                figure=generate_plot()
-                                ),
-                        ],
+                        [dcc.Graph(id="line-plot", figure=generate_plot()),],
                         # align="center",
-                        width={'size': 6}
+                        width={"size": 6}
                         # width={"size": 6, "offset": 0},
-                    )
+                    ),
                 ],
             ),
         ]

@@ -1,7 +1,7 @@
 import sys
 
 # add your project directory to the sys.path
-project_home = u'/home/mighelone/covid-dashboard'
+project_home = u"/home/mighelone/covid-dashboard"
 if project_home not in sys.path:
     sys.path = [project_home] + sys.path
 
@@ -9,4 +9,5 @@ if project_home not in sys.path:
 # for a dash app, that is at app.server
 # see https://plot.ly/dash/deployment
 from app import app
+
 application = app.server
