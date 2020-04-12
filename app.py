@@ -19,6 +19,8 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 set_layout(app)
 set_callbacks(app)
 
+application = app.server
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)
