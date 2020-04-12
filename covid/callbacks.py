@@ -51,13 +51,18 @@ def generate_choropleth(value):
 
 def generate_plot(value="totale_positivi"):
     df = get_time_data()
-    return px.line(df, x="data", y=value, color="denominazione_regione")
+    fig = px.line(df, x="data", y=value, color="denominazione_regione", height=800)
+    fig.update_layout(legend_orientation="h")
+    return fig
 
 
 def set_callbacks(app: Dash):
     @app.callback(
-        Output(component_id="italy-plot", component_property="figure"),
+        [
+            Output(component_id="italy-plot", component_property="figure"),
+            Output(component_id="line-plot", component_property="figure")
+        ],
         [Input(component_id="dropdown-menu", component_property="value")],
     )
     def update_plot(value):
-        return generate_choropleth(value)
+        return generate_choropleth(value), generate_plot(value)
