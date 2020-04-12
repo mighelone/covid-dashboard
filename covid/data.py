@@ -58,7 +58,7 @@ def get_time_data() -> pd.DataFrame:
     fname: Path = data_path / "../data/historical_region.json"
     if fname.exists():
         log.info(f"{fname} already exists reading from local fs")
-        df = pd.read_json(fname)
+        df = pd.read_json(fname).astype({"data": np.datetime64})
     else:
         log.info(f"{fname} not downloaded yet, reading from github")
         df: pd.DataFrame = (
@@ -74,7 +74,7 @@ def get_time_data() -> pd.DataFrame:
             .sort_values(["codice_regione", "data"])
         )
         # import pdb; pdb.set_trace()
-        df.to_json(fname, orient='records', date_format='iso')
+        df.to_json(fname, orient='records', date_format='iso').astype({"data": np.datetime64})
     return df
 
 

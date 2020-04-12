@@ -3,7 +3,7 @@ from dash.dependencies import Input, Output
 import plotly.express as px
 
 
-from .data import get_italy_map_region, get_italy_regional_data
+from .data import get_italy_map_region, get_italy_regional_data, get_time_data
 
 map_data = get_italy_map_region()
 df = get_italy_regional_data()
@@ -46,6 +46,11 @@ def generate_choropleth(value):
     # fig.update_geos(fitbounds="locations", visible=False, overwrite=True)
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     return fig
+
+
+def generate_plot(value="totale_positivi"):
+    df = get_time_data()
+    return px.line(df, x="data", y=value, color='denominazione_regione')
 
 
 def set_callbacks(app: Dash):

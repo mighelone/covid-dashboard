@@ -4,7 +4,7 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import plotly.express as px
 
-from .callbacks import generate_choropleth
+from .callbacks import generate_choropleth, generate_plot
 
 map_labels = [
     {"label": l.replace("_", " "), "value": l}
@@ -48,13 +48,26 @@ def set_layout(app: Dash):
                                 value=DEFAULT
                                 # multi=False,
                             ),
-                            dcc.Graph(id='italy-plot', figure=generate_choropleth(DEFAULT))
+                            dcc.Graph(
+                                id="italy-plot", figure=generate_choropleth(DEFAULT)
+                            ),
                         ],
-                        align='center',
-                        width={"size": 8, "offset": 2},
+                        # align="center",
+                        width={'size': 6}
+                        # width={"size": 6, "offset": 0},
+                    ),
+                    dbc.Col(
+                        [
+                            dcc.Graph(
+                                id="line-plot",
+                                figure=generate_plot()
+                                ),
+                        ],
+                        # align="center",
+                        width={'size': 6}
+                        # width={"size": 6, "offset": 0},
                     )
                 ],
-                
-            )
+            ),
         ]
     )
