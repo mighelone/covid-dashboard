@@ -23,10 +23,28 @@ def set_callbacks(app: Dash):
             # color="terapia_intensiva",
             color=value,
             featureidkey="properties.reg_istat_code",
-            color_continuous_scale="Viridis",
+            hover_name="denominazione_regione",
+            hover_data=[
+                # "ricoverati_con_sintomi",
+                # "terapia_intensiva",
+                # "totale_ospedalizzati",
+                # "isolamento_domiciliare",
+                "totale_positivi",
+                # "variazione_totale_positivi",
+                # "nuovi_positivi",
+                "dimessi_guariti",
+                "deceduti",
+                # "totale_casi",
+                # "tamponi",
+            ],
+            title=value.replace('_', ''),
+            projection="equirectangular",
+            color_continuous_scale="Pinkyl",
             # range_color=(0, 12),
             # scope="europe",
             # labels={"value": "something"},
+            width=900,
+            height=600
         )
         fig.update_geos(fitbounds="locations", visible=False, overwrite=True)
         fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})

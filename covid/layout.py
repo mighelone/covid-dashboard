@@ -33,11 +33,11 @@ def set_layout(app: Dash):
     app.layout = html.Div(
         children=[
             html.H1(children="Covid"),
-            html.Div(
-                children="""
-                Dash: A web application framework for Python.
-            """
-            ),
+            # html.Div(
+            #     children="""
+            #     Dash: A web application framework for Python.
+            # """
+            # ),
             dropdown_menu,
             dcc.Graph(id="italy-plot", figure={}),
         ]
