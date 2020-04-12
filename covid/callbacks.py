@@ -15,13 +15,14 @@ def set_callbacks(app: Dash):
         [Input(component_id="dropdown-menu", component_property="value")],
     )
     def update_plot(value):
-        fig = px.choropleth(
+        fig = px.choropleth_mapbox(
             df,
             geojson=map_data,
             # locations="codice_regione",
             locations="codice_regione",
             # color="terapia_intensiva",
             color=value,
+            center={'lon': 12, 'lat':42}, 
             featureidkey="properties.reg_istat_code",
             hover_name="denominazione_regione",
             hover_data=[
@@ -37,8 +38,10 @@ def set_callbacks(app: Dash):
                 # "totale_casi",
                 # "tamponi",
             ],
+            zoom=4.7,
             title=value.replace('_', ''),
-            projection="equirectangular",
+            mapbox_style='carto-positron',
+            # projection="equirectangular",
             color_continuous_scale="Pinkyl",
             # range_color=(0, 12),
             # scope="europe",
@@ -46,6 +49,6 @@ def set_callbacks(app: Dash):
             width=900,
             height=600
         )
-        fig.update_geos(fitbounds="locations", visible=False, overwrite=True)
+        # fig.update_geos(fitbounds="locations", visible=False, overwrite=True)
         fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
         return fig
