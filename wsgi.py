@@ -1,9 +1,9 @@
-# import sys
+import sys
 
-# # add your project directory to the sys.path
-# project_home = u'/home/conrad/dashingdemo'
-# if project_home not in sys.path:
-#     sys.path = [project_home] + sys.path
+# add your project directory to the sys.path
+project_home = u'/home/mighelone/covid-dashboard'
+if project_home not in sys.path:
+    sys.path = [project_home] + sys.path
 
 # need to pass the flask app as "application" for WSGI to work
 # for a dash app, that is at app.server
