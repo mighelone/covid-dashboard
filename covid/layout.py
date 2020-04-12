@@ -22,7 +22,6 @@ map_labels = [
 ]
 
 
-
 def set_layout(app: Dash):
     dropdown_menu = dcc.Dropdown(
         id="dropdown-menu",

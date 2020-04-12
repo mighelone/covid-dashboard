@@ -8,11 +8,11 @@ from .data import get_italy_map_region, get_italy_regional_data
 map_data = get_italy_map_region()
 df = get_italy_regional_data()
 
-def set_callbacks(app: Dash):
 
+def set_callbacks(app: Dash):
     @app.callback(
-        Output(component_id='italy-plot', component_property='figure'),
-        [Input(component_id='dropdown-menu', component_property='value')]
+        Output(component_id="italy-plot", component_property="figure"),
+        [Input(component_id="dropdown-menu", component_property="value")],
     )
     def update_plot(value):
         fig = px.choropleth(
