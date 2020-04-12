@@ -2,3 +2,4 @@ plotly==4.6.0
 dash==1.11.0
 pandas==0.25.3
 numpy==1.18.1
+dash-bootstrap-componenet==0.9.2

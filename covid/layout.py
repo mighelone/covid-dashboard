@@ -1,6 +1,7 @@
 from dash import Dash
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_bootstrap_components as dbc
 import plotly.express as px
 
 from .callbacks import generate_choropleth
@@ -22,24 +23,38 @@ map_labels = [
     ]
 ]
 
+DEFAULT = "totale_casi"
 
+
+# def set_layout(app: Dash):
+#     dropdown_menu = dcc.Dropdown(
+#         id="dropdown-menu",
+#         options=map_labels,
+#         value=map_labels[0]["value"],
+#         multi=False,
+#     )
 def set_layout(app: Dash):
-    dropdown_menu = dcc.Dropdown(
-        id="dropdown-menu",
-        options=map_labels,
-        value=map_labels[0]["value"],
-        multi=False,
-    )
-
-    app.layout = html.Div(
-        children=[
-            html.H1(children="Covid"),
-            # html.Div(
-            #     children="""
-            #     Dash: A web application framework for Python.
-            # """
-            # ),
-            dropdown_menu,
-            dcc.Graph(id="italy-plot", figure=generate_choropleth('ricoverati_con_sintomi')),
+    app.layout = dbc.Container(
+        [
+            html.H1("Italy COVID-19 dasboard"),
+            html.Hr(),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            dcc.Dropdown(
+                                id="dropdown-menu",
+                                options=map_labels,
+                                value=DEFAULT
+                                # multi=False,
+                            ),
+                            dcc.Graph(id='italy-plot', figure=generate_choropleth(DEFAULT))
+                        ],
+                        align='center',
+                        width={"size": 8, "offset": 2},
+                    )
+                ],
+                
+            )
         ]
     )

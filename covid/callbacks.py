@@ -40,7 +40,7 @@ def generate_choropleth(value):
         # range_color=(0, 12),
         # scope="europe",
         # labels={"value": "something"},
-        width=900,
+        # width=900,
         height=600
     )
     # fig.update_geos(fitbounds="locations", visible=False, overwrite=True)
