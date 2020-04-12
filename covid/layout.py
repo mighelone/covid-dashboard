@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.express as px
 
+from .callbacks import generate_choropleth
 
 map_labels = [
     {"label": l.replace("_", " "), "value": l}
@@ -39,6 +40,6 @@ def set_layout(app: Dash):
             # """
             # ),
             dropdown_menu,
-            dcc.Graph(id="italy-plot", figure={}),
+            dcc.Graph(id="italy-plot", figure=generate_choropleth('ricoverati_con_sintomi')),
         ]
     )

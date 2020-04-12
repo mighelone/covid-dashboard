@@ -9,8 +9,8 @@ import numpy as np
 import plotly.express as px
 import pandas as pd
 
-from covid.layout import set_layout
 from covid.callbacks import set_callbacks
+from covid.layout import set_layout
 
 
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
