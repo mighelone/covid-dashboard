@@ -1,6 +1,7 @@
 from typing import Dict, Any
 import pandas as pd
 import json
+import os
 
 URL = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-regioni-latest.json"
 
@@ -26,6 +27,8 @@ def get_italy_map_region() -> Dict[str, Any]:
     Returns:
         [type] -- [description]
     """
-    with open("./data/limits_IT_regions.geojson", "r") as f:
+    path = os.path.abspath(os.path.join(os.path.dirname(__file__),'../data/limits_IT_regions.geojson'))
+
+    with open(path, "r") as f:
         data = json.load(f)
     return data
