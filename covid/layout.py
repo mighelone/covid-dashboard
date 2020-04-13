@@ -48,20 +48,10 @@ def set_layout(app: Dash):
                                 value=DEFAULT
                                 # multi=False,
                             ),
-                            dcc.Graph(
-                                id="italy-plot", figure=generate_choropleth(DEFAULT)
-                            ),
+                            dcc.Graph(id="italy-plot"),
                         ],
-                        # align="center",
-                        width={"size": 6}
-                        # width={"size": 6, "offset": 0},
                     ),
-                    dbc.Col(
-                        [dcc.Graph(id="line-plot", figure=generate_plot()),],
-                        # align="center",
-                        width={"size": 6}
-                        # width={"size": 6, "offset": 0},
-                    ),
+                    dbc.Col([dcc.Graph(id="line-plot")],),
                 ],
             ),
         ]

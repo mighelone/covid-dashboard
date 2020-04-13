@@ -5,8 +5,10 @@ import plotly.express as px
 
 from .data import get_italy_map_region, get_italy_regional_data, get_time_data
 
+# cache data
 map_data = get_italy_map_region()
 df = get_italy_regional_data()
+historical_df = get_time_data()
 
 
 def generate_choropleth(value):
@@ -50,8 +52,9 @@ def generate_choropleth(value):
 
 
 def generate_plot(value="totale_positivi"):
-    df = get_time_data()
-    fig = px.line(df, x="data", y=value, color="denominazione_regione", height=800)
+    fig = px.line(
+        historical_df, x="data", y=value, color="denominazione_regione", height=800
+    )
     fig.update_layout(legend_orientation="h")
     return fig
 
@@ -60,7 +63,7 @@ def set_callbacks(app: Dash):
     @app.callback(
         [
             Output(component_id="italy-plot", component_property="figure"),
-            Output(component_id="line-plot", component_property="figure")
+            Output(component_id="line-plot", component_property="figure"),
         ],
         [Input(component_id="dropdown-menu", component_property="value")],
     )

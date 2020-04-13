@@ -50,7 +50,7 @@ def get_singlefile(date):
         df = pd.read_csv(f)
     except:
         df = pd.DataFrame()
-    else:
+    finally:
         return df
 
 
@@ -73,7 +73,5 @@ def get_time_data() -> pd.DataFrame:
             .sort_values(["codice_regione", "data"])
         )
         # import pdb; pdb.set_trace()
-        df.to_json(fname, orient="records", date_format="iso").astype(
-            {"data": np.datetime64}
-        )
+        df.to_json(fname, orient="records", date_format="iso")
     return df
