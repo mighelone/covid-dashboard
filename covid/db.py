@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 
-conn = "mysql://root:example@127.0.0.1:3306/covid"
+conn = "mysql://root:superset@127.0.0.1:3306/covid"
 
 engine = create_engine(conn)
 Session = sessionmaker(bind=engine)
@@ -77,6 +77,7 @@ def get_singlefile(date: dt.datetime):
             key: (value + trentino[1][key] if isinstance(value, int) else value)
             for key, value in trentino[0].items()
         }
+        trentino_all['denominazione_regione'] = "Trentino Alto Adige"
         yield trentino_all
 
 
