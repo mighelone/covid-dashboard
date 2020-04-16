@@ -25,7 +25,10 @@ df: pd.DataFrame = get_db_data()
 
 
 def generate_choropleth(value, data: Optional[dt.date]=None):
-    data = data or dt.date.today()
+    if isinstance(data, str):
+        data = dt.datetime.strptime(data, '%Y-%m-%d').date()
+    elif data is None: 
+        data = dt.date.today()
     df1 = df.loc[df['data'].dt.date == data, :]
     fig = px.choropleth_mapbox(
         df1,
@@ -137,10 +140,13 @@ def generate_bar_plot_new_positives(region='Italia'):
 def set_callbacks(app: Dash):
     @app.callback(
         Output(component_id="italy-plot", component_property="figure"),
-        [Input(component_id="dropdown-menu", component_property="value")],
+        [
+            Input(component_id="dropdown-menu", component_property="value"),
+            Input(component_id="select-date", component_property="date")
+        ],
     )
-    def update_plot(value):
-        return generate_choropleth(value)  # , generate_plot(value)
+    def update_plot(value, date):
+        return generate_choropleth(value, date)  # , generate_plot(value)
 
 
     @app.callback(

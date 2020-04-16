@@ -4,6 +4,8 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import plotly.express as px
 
+import datetime as dt
+
 
 map_labels = [
     {"label": l.replace("_", " "), "value": l}
@@ -86,12 +88,21 @@ def set_layout(app: Dash):
             dbc.Row(
                 [
                     dbc.Col(
-                        dcc.Dropdown(
-                            id="dropdown-menu",
-                            options=map_labels,
-                            value=DEFAULT
-                            # multi=False,
-                        ),
+                        [
+                            dcc.Dropdown(
+                                id="dropdown-menu",
+                                options=map_labels,
+                                value=DEFAULT
+                                # multi=False,
+                            ),
+                            dcc.DatePickerSingle(
+                                id='select-date',
+                                date=dt.date.today(),
+                                min_date_allowed=dt.date(2020, 2, 24),
+                                max_date_allowed=dt.date.today(),
+                                style={"marginTop": "10px"}
+                            )
+                        ],
                         # align='center',
                         width={"size": 2},
                     ),
