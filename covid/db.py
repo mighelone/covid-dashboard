@@ -9,7 +9,6 @@ import logging
 from urllib.request import urlopen
 from urllib.error import HTTPError
 from dateutil.parser import parse, ParserError
-from .data import get_singlefile
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -114,8 +113,3 @@ def update_db(date:Optional[dt.datetime]=None, from_begin=False):
             insert_data(date=day)
         except HTTPError:
             log.error(f"No data for {day}")
-
-
-
-
-
