@@ -4,7 +4,6 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import plotly.express as px
 
-from .callbacks import generate_choropleth, generate_plot, generate_total_plot
 
 map_labels = [
     {"label": l.replace("_", " "), "value": l}
@@ -101,7 +100,7 @@ def set_layout(app: Dash):
             ),
             html.Div(style={"padding": 10}),
             #
-            dbc.Row(dbc.Col(dcc.Graph(id="bar_plot_time", figure={}))),
+            dbc.Row(html.Hr()),
             dbc.Row(
                 [
                     dbc.Col([html.H5("Seleziona regione")], width={"size": 2}),
@@ -117,6 +116,14 @@ def set_layout(app: Dash):
                         width={"size": 2},
                     ),
                 ]
+            ),
+            dbc.Row(
+                dbc.Col(dcc.Graph(id="bar_plot_time", figure={})),
+                style={"marginTop": "20px"},
+            ),
+            dbc.Row(
+                dbc.Col(dcc.Graph(id="bar_plot_new_positives", figure={})),
+                style={"marginTop": "20px"},
             ),
         ]
     )

@@ -2,14 +2,17 @@ from dash import Dash
 from dash.dependencies import Input, Output
 import plotly.express as px
 import plotly.graph_objects as go
+import pandas as pd
+import datetime as dt
+from typing import List, Optional
 
 import logging
 
 from .data import (
     get_italy_map_region,
-    get_italy_regional_data,
     get_time_data_db,
     get_total_data_db,
+    get_db_data
 )
 
 log = logging.getLogger(__name__)
@@ -17,20 +20,22 @@ log = logging.getLogger(__name__)
 # cache data
 log.info("Loading data...")
 map_data = get_italy_map_region()
-df = get_italy_regional_data()
+df: pd.DataFrame = get_db_data()
 # historical_df = get_time_data()
 
 
-def generate_choropleth(value):
+def generate_choropleth(value, data: Optional[dt.date]=None):
+    data = data or dt.date.today()
+    df1 = df.loc[df['data'].dt.date == data, :]
     fig = px.choropleth_mapbox(
-        df,
+        df1,
         geojson=map_data,
         # locations="codice_regione",
         locations="codice_regione",
         # color="terapia_intensiva",
         color=value,
         center={"lon": 12, "lat": 42},
-        featureidkey="properties.reg_istat_code",
+        featureidkey="properties.reg_istat_code_num",
         hover_name="denominazione_regione",
         hover_data=[
             # "ricoverati_con_sintomi",
@@ -61,47 +66,9 @@ def generate_choropleth(value):
     return fig
 
 
-def generate_plot(value="totale_positivi"):
-    historical_df = get_time_data_db(value)
-
-    lines = [
-        go.Scatter(
-            x=dfi["data"],
-            y=dfi[value],
-            #         title='totale',
-            line={"width": 3},
-            name=key,
-        )
-        for key, dfi in historical_df.groupby("denominazione_regione")
-    ]
-    fig = go.Figure(
-        data=lines,
-        layout=go.Layout(
-            xaxis_title="Day",
-            yaxis_title=value.replace("_", ""),
-            plot_bgcolor="white",
-            legend_orientation="h",
-            height=800,
-        ),
-    )
-    return fig
-
-
-def generate_total_plot(columns=["totale_casi", "deceduti", "dimessi_guariti"]):
-    columns = [columns] if isinstance(columns, str) else columns
-    df = get_total_data_db(columns)
-    df = df.melt(id_vars="data", value_vars=columns)
-    fig = px.line(df, x="data", y="value", color="variable", width=800)
-    fig.update_layout(
-        plot_bgcolor="white",
-        # yaxis_type='log'
-    )
-    return fig
-
-
 def generate_bar_plot_time(
     region: str = "Italy",
-    columns=[
+    columns: List[str]=[
         "dimessi_guariti",
         "isolamento_domiciliare",
         "ricoverati_con_sintomi",
@@ -118,11 +85,16 @@ def generate_bar_plot_time(
     Returns:
         [type] -- figure
     """
-    df = get_time_data_db(columns, region=region)
+    # df = get_time_data_db(columns, region=region)
+    df1 = df[columns+['data', 'denominazione_regione']]
+    if region != "Italia":
+        df1 = df1.query("denominazione_regione==@region")
+    else:
+        df1 = df1.groupby(['data'], as_index=False).sum()
 
     return go.Figure(
         data=[
-            go.Bar(name=col.replace('_', ' '), x=df['data'], y=df[col])
+            go.Bar(name=col.replace('_', ' '), x=df1['data'], y=df1[col])
             for col in columns
         ],
         layout=go.Layout(
@@ -138,6 +110,30 @@ def generate_bar_plot_time(
                     
     )
 
+def generate_bar_plot_new_positives(region='Italia'):
+    df1 = df[['data', 'denominazione_regione', 'variazione_totale_positivi']]
+    if region == 'Italia':
+        df1 = df1.groupby(['data'], as_index=False).sum()
+    else:
+        df1 = df1.query("denominazione_regione==@region")
+    return go.Figure(
+        data=[
+            go.Bar(name='', x=df1['data'], y=df1['variazione_totale_positivi'])
+        ],
+        layout=go.Layout(
+            plot_bgcolor='white',
+            barmode='stack',
+            legend=dict(
+                x=0.02,
+                y=0.98,
+                title=f'<b> {region} </b>',
+                traceorder="normal",
+            )
+        )
+                    
+    )
+
+
 def set_callbacks(app: Dash):
     @app.callback(
         Output(component_id="italy-plot", component_property="figure"),
@@ -148,16 +144,12 @@ def set_callbacks(app: Dash):
 
 
     @app.callback(
-        Output(component_id='bar_plot_time', component_property='figure'),
+        [
+            Output(component_id='bar_plot_time', component_property='figure'),
+            Output(component_id='bar_plot_new_positives', component_property='figure'),
+        ],
         [Input(component_id='dropdown-region', component_property='value')]
     )
     def update_bar_plot_time(value):
-        return generate_bar_plot_time(value)
-
-    # @app.callback(
-    #     Output(component_id="total-plot-2", component_property="figure"),
-    #     [Input(component_id="dropdown-menu-2", component_property="value")],
-    # )
-    # def update_plot_2(values):
-    #     return generate_total_plot(values) if values else {}
-    # @app.callback()
+        return generate_bar_plot_time(value), generate_bar_plot_new_positives(value)
+    

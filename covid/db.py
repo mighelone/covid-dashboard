@@ -59,7 +59,29 @@ def get_field(field: str):
                 result = field
     return result
 
-
+"""
+Abruzzo 13
+Basilicata 17
+P.A. Bolzano 4
+Calabria 18
+Campania 15
+Emilia-Romagna 8
+Friuli Venezia Giulia 6
+Lazio 12
+Liguria 7
+Lombardia 3
+Marche 11
+Molise 14
+Piemonte 1
+Puglia 16
+Sardegna 20
+Sicilia 19
+Toscana 9
+P.A. Trento 4
+Umbria 10
+Valle d'Aosta 2
+Veneto 5
+"""
 def get_singlefile(date: dt.datetime):
     fname = f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-regioni-{date:%Y%m%d}.csv"
     with urlopen(fname) as response:
@@ -73,9 +95,10 @@ def get_singlefile(date: dt.datetime):
             else:
                 yield d
         trentino_all = {
-            key: (value + trentino[1][key] if isinstance(value, int) else value)
+            key: (value + trentino[1][key] if (isinstance(value, int)) else value)
             for key, value in trentino[0].items()
         }
+        trentino_all['codice_regione'] = 4
         trentino_all['denominazione_regione'] = "Trentino Alto Adige"
         yield trentino_all
 

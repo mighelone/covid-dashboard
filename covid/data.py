@@ -6,6 +6,7 @@ import datetime as dt
 import numpy as np
 import logging
 from pathlib import Path
+from sqlalchemy import func
 
 from .db import Session, ItalyRegion
 
@@ -15,7 +16,19 @@ data_path = Path(os.path.dirname(__file__)).absolute()
 
 URL = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-regioni-latest.json"
 
-session = Session()
+def get_db_data()->pd.DataFrame:
+    log.info(f"Importing data...")
+    session = Session()
+    try:
+        df = pd.read_sql_table('italy_region', session.bind)
+    except:
+        raise
+    else:
+        log.info(f'... data imported')
+    finally:
+        session.close()
+    return df
+
 
 
 def get_italy_regional_data(url=URL) -> pd.DataFrame:
@@ -92,9 +105,6 @@ def get_time_data_db(categories: List[str], region: str = "Italia"):
         ItalyRegion.data
     )
     return pd.DataFrame(query)
-
-
-from sqlalchemy import func
 
 
 def get_total_data_db(
