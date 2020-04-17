@@ -74,13 +74,25 @@ def set_layout(app: Dash):
                             dbc.Row(
                                 [
                                     dbc.Col(
+                                        html.H6("Seleziona valore: "),
+                                        align="center",
+                                        md=2,
+                                    ),
+                                    dbc.Col(
                                         dcc.Dropdown(
                                             id="dropdown-menu",
                                             options=map_labels,
                                             value=DEFAULT
                                             # multi=False,
                                         ),
+                                        align="center",
                                         md=4,
+                                        # offset=3,
+                                    ),
+                                    dbc.Col(
+                                        html.H6("Seleziona data: "),
+                                        align="center",
+                                        md=2,
                                     ),
                                     dbc.Col(
                                         dcc.DatePickerSingle(
@@ -88,13 +100,36 @@ def set_layout(app: Dash):
                                             date=dt.date.today(),
                                             min_date_allowed=dt.date(2020, 2, 24),
                                             max_date_allowed=dt.date.today(),
-                                            style={"marginTop": "10px"},
+                                            # style={"marginTop": "10px"},
                                         ),
                                         md=4,
+                                        align="center",
                                     ),
-                                ]
+                                ],
+                                justify="around",
                             ),
-                            dbc.Row(dbc.Col(dcc.Graph(id="italy-plot")),),
+                            dbc.Row(
+                                dbc.Col(dcc.Graph(id="italy-plot")),
+                                style={"marginTop": "10px"},
+                            ),
+                            dbc.Row(
+                                dbc.Col(
+                                    dbc.Jumbotron(
+                                        [
+                                            dcc.Markdown(
+                                                """
+                                        - Muovi il mouse sopra una regione per aggiornare i grafici a sinistra.
+                                        - Il valore rappresentato nella mappa puo' essere cambiato selezionando un nuovo valore dal menu a tendina in alto a sinistra
+                                        - Seleziona la data in alto a sinistra per mostrare il valore nella data selezionata.
+                                        """
+                                            )
+                                        ]
+                                    ),
+                                    style={"marginTop": "20px"},
+                                    md=10,
+                                ),
+                                justify="center",
+                            ),
                         ],
                         md=6,
                     ),
