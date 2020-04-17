@@ -8,12 +8,7 @@ from typing import List, Optional
 
 import logging
 
-from .data import (
-    get_italy_map_region,
-    get_time_data_db,
-    get_total_data_db,
-    get_db_data
-)
+from .data import get_italy_map_region, get_time_data_db, get_total_data_db, get_db_data
 
 log = logging.getLogger(__name__)
 
@@ -24,12 +19,19 @@ df: pd.DataFrame = get_db_data()
 # historical_df = get_time_data()
 
 
-def generate_choropleth(value, data: Optional[dt.date]=None):
-    if isinstance(data, str):
-        data = dt.datetime.strptime(data, '%Y-%m-%d').date()
-    elif data is None: 
-        data = dt.date.today()
-    df1 = df.loc[df['data'].dt.date == data, :]
+def generate_choropleth(value, data: Optional[dt.date] = None):
+    max_data = df.data.dt.date.max()
+    data = (
+        min(dt.datetime.strptime(data, "%Y-%m-%d").date(), max_data)
+        if isinstance(data, str)
+        else max_data
+    )
+    log.info(f'Generating map plot for {data}..')
+    # if isinstance(data, str):
+    #     data = min(dt.datetime.strptime(data, '%Y-%m-%d').date(), max_data)
+    # elif data is None:
+    #     data = max_data
+    df1 = df.loc[df["data"].dt.date == data, :]
     fig = px.choropleth_mapbox(
         df1,
         geojson=map_data,
@@ -71,7 +73,7 @@ def generate_choropleth(value, data: Optional[dt.date]=None):
 
 def generate_bar_plot_time(
     region: str = "Italy",
-    columns: List[str]=[
+    columns: List[str] = [
         "dimessi_guariti",
         "isolamento_domiciliare",
         "ricoverati_con_sintomi",
@@ -89,51 +91,72 @@ def generate_bar_plot_time(
         [type] -- figure
     """
     # df = get_time_data_db(columns, region=region)
-    df1 = df[columns+['data', 'denominazione_regione']]
+    df1 = df[columns + ["data", "denominazione_regione"]]
     if region != "Italia":
         df1 = df1.query("denominazione_regione==@region")
     else:
-        df1 = df1.groupby(['data'], as_index=False).sum()
+        df1 = df1.groupby(["data"], as_index=False).sum()
 
     return go.Figure(
         data=[
-            go.Bar(name=col.replace('_', ' '), x=df1['data'], y=df1[col])
+            go.Bar(name=col.replace("_", " "), x=df1["data"], y=df1[col])
             for col in columns
         ],
         layout=go.Layout(
-            plot_bgcolor='white',
-            barmode='stack',
+            plot_bgcolor="white",
+            barmode="stack",
             legend=dict(
-                x=0.02,
-                y=0.98,
-                title=f'<b> {region} </b>',
-                traceorder="normal",
-            )
-        )
-                    
+                x=0.02, y=0.98, title=f"<b> {region} </b>", traceorder="normal",
+            ),
+        ),
     )
 
-def generate_bar_plot_new_positives(region='Italia'):
-    df1 = df[['data', 'denominazione_regione', 'variazione_totale_positivi']]
-    if region == 'Italia':
-        df1 = df1.groupby(['data'], as_index=False).sum()
+
+def generate_bar_plot_new_positives(region="Italia"):
+    df1 = df[["data", "denominazione_regione", "variazione_totale_positivi"]]
+    if region == "Italia":
+        df1 = df1.groupby(["data"], as_index=False).sum()
     else:
         df1 = df1.query("denominazione_regione==@region")
     return go.Figure(
+        data=[go.Bar(name=region, x=df1["data"], y=df1["variazione_totale_positivi"])],
+        layout=go.Layout(
+            plot_bgcolor="white",
+            barmode="stack",
+            legend=dict(
+                x=0.02, y=0.98, title=f"<b> {region} </b>", traceorder="normal",
+            ),
+        ),
+    )
+
+
+def generate_plot_region(region='Italia', value='totale_casi'):
+    df1 = df[["data", "denominazione_regione", value]]
+    if region == "Italia":
+        df1 = df1.groupby(["data"], as_index=False).sum()
+    else:
+        df1 = df1.query("denominazione_regione==@region")
+
+    return go.Figure(
         data=[
-            go.Bar(name='', x=df1['data'], y=df1['variazione_totale_positivi'])
+            go.Bar(
+                name=value, 
+                x=df1['data'], 
+                y=df1[value], 
+                # line=go.scatter.Line(width=3)
+            )
         ],
         layout=go.Layout(
-            plot_bgcolor='white',
-            barmode='stack',
+            plot_bgcolor="white",
+            barmode="stack",
+            yaxis=go.layout.YAxis(
+                title=value.replace('_', ' ')
+            ),
             legend=dict(
-                x=0.02,
-                y=0.98,
-                title=f'<b> {region} </b>',
-                traceorder="normal",
-            )
-        )
-                    
+                x=0.02, y=0.98, title=f"<b> {region} </b>", traceorder="normal",
+            ),
+            title=f"{region}: {value.replace('_', ' ')}"
+        ),
     )
 
 
@@ -142,20 +165,36 @@ def set_callbacks(app: Dash):
         Output(component_id="italy-plot", component_property="figure"),
         [
             Input(component_id="dropdown-menu", component_property="value"),
-            Input(component_id="select-date", component_property="date")
+            Input(component_id="select-date", component_property="date"),
         ],
     )
     def update_plot(value, date):
         return generate_choropleth(value, date)  # , generate_plot(value)
 
+    @app.callback(
+        Output(component_id="bar_plot_time", component_property="figure"),
+        # [Input(component_id="dropdown-region", component_property="value")],
+        [Input(component_id='italy-plot', component_property='hoverData')]
+    )
+    def update_bar_plot_time(hoverData):
+        region = [v['hovertext'] for v in hoverData['points']][0] if hoverData else "Italia"
+        return generate_bar_plot_time(region) #, generate_bar_plot_new_positives(value)
 
     @app.callback(
+        Output(component_id="region-line", component_property="figure"),
         [
-            Output(component_id='bar_plot_time', component_property='figure'),
-            Output(component_id='bar_plot_new_positives', component_property='figure'),
-        ],
-        [Input(component_id='dropdown-region', component_property='value')]
+            Input(component_id="dropdown-menu", component_property="value"),
+            Input(component_id='italy-plot', component_property='hoverData'),
+            # Input(component_id='italy-plot', component_property='selectedData')
+        ]
     )
-    def update_bar_plot_time(value):
-        return generate_bar_plot_time(value), generate_bar_plot_new_positives(value)
-    
+    def update_region_line_plot(value: str, hoverData):
+        log.info(f'hover={hoverData}')
+        region = [v['hovertext'] for v in hoverData['points']][0] if hoverData else "Italia"
+        # regions_select = [v['hovertext'] for v in selectData['points']][0] if hoverData else []
+        # regions_select = []
+        # regions = regions_hover + regions_select
+        # region = regions if regions_select else "Italia"
+        log.info(f'region={region}')
+        return generate_plot_region(region=region, value=value)
+

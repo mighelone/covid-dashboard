@@ -6,6 +6,8 @@ import plotly.express as px
 
 import datetime as dt
 
+from .callbacks import generate_plot_region
+
 
 map_labels = [
     {"label": l.replace("_", " "), "value": l}
@@ -53,28 +55,8 @@ map_regions = [
 DEFAULT = "totale_casi"
 
 
-# def set_layout(app: Dash):
-#     dropdown_menu = dcc.Dropdown(
-#         id="dropdown-menu",
-#         options=map_labels,
-#         value=map_labels[0]["value"],
-#         multi=False,
-#     )
 def set_layout(app: Dash):
     navbar = dbc.NavbarSimple(
-        # children=[
-        #     # dbc.NavItem(dbc.NavLink("Page 1", href="#")),
-        #     dbc.DropdownMenu(
-        #         children=[
-        #             dbc.DropdownMenuItem("More pages", header=True),
-        #             dbc.DropdownMenuItem("Page 2", href="#"),
-        #             dbc.DropdownMenuItem("Page 3", href="#"),
-        #         ],
-        #         nav=True,
-        #         in_navbar=True,
-        #         label="More",
-        #     ),
-        # ],
         brand="COVID-19 dashboard",
         brand_href="#",
         # color="primary",
@@ -109,32 +91,35 @@ def set_layout(app: Dash):
                     dbc.Col(dcc.Graph(id="italy-plot")),
                 ]
             ),
-            html.Div(style={"padding": 10}),
-            #
-            dbc.Row(html.Hr()),
             dbc.Row(
-                [
-                    dbc.Col([html.H5("Seleziona regione")], width={"size": 2}),
-                    dbc.Col(
-                        [
-                            dcc.Dropdown(
-                                id="dropdown-region",
-                                options=map_regions,
-                                value="Italia"
-                                # multi=False,
-                            ),
-                        ],
-                        width={"size": 2},
-                    ),
-                ]
+                dbc.Col(dcc.Graph(id="region-line", figure={}))
             ),
+            # html.Div(style={"padding": 10}),
+            #
+            # dbc.Row(html.Hr()),
+            # dbc.Row(
+            #     [
+            #         dbc.Col([html.H5("Seleziona regione")], width={"size": 2}),
+            #         dbc.Col(
+            #             [
+            #                 dcc.Dropdown(
+            #                     id="dropdown-region",
+            #                     options=map_regions,
+            #                     value="Italia"
+            #                     # multi=False,
+            #                 ),
+            #             ],
+            #             width={"size": 4},
+            #         ),
+            #     ]
+            # ),
             dbc.Row(
                 dbc.Col(dcc.Graph(id="bar_plot_time", figure={})),
                 style={"marginTop": "20px"},
             ),
-            dbc.Row(
-                dbc.Col(dcc.Graph(id="bar_plot_new_positives", figure={})),
-                style={"marginTop": "20px"},
-            ),
+            # dbc.Row(
+            #     dbc.Col(dcc.Graph(id="bar_plot_new_positives", figure={})),
+            #     style={"marginTop": "20px"},
+            # ),
         ]
     )

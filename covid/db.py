@@ -2,7 +2,7 @@ from typing import Optional
 import datetime as dt
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, Float
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
 import logging
@@ -42,6 +42,21 @@ class ItalyRegion(Base):
     tamponi = Column(Integer)
     note_it = Column(String(100), nullable=True)
     note_en = Column(String(100), nullable=True)
+
+class ItalyRegionBase(Base):
+    __tablename__ = "italy_region_base"
+    cod_istat = Column(Integer, primary_key=True)
+    regiob = Column(String(50))
+    superficie = Column(Float)
+    num_residenti = Column(Integer)
+    num_comuni = Column(Integer)                 
+    num_provincie = Column(Integer)
+    presidente = Column(String(100))
+    cod_fiscale = Column(Float)
+    piva = Column(Float)
+    pec = Column(String(100))
+    sito  = Column(String(100))   
+    sede = Column(String(100))
 
 
 Base.metadata.create_all(engine)
@@ -136,3 +151,9 @@ def update_db(date:Optional[dt.datetime]=None, from_begin=False):
             insert_data(date=day)
         except HTTPError:
             log.error(f"No data for {day}")
+
+# def update_db_region():
+#     session = Session()
+#     fname = "https://raw.githubusercontent.com/MatteoHenryChinaski/Comuni-Italiani-2018-Sql-Json-excel/master/italy_regions.json"
+
+#     with urlopen(fname) as response:
