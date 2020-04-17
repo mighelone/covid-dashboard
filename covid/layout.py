@@ -90,29 +90,21 @@ def set_layout(app: Dash):
                                             max_date_allowed=dt.date.today(),
                                             style={"marginTop": "10px"},
                                         ),
-                                        md=4
+                                        md=4,
                                     ),
                                 ]
                             ),
-                            dbc.Row(
-                                dbc.Col(dcc.Graph(id="italy-plot")),                
-                            ),
-                            # dbc.Row(
-                            #     [
-                            #         
-                            #         dbc.Col(dcc.Graph(id="bar_plot_time", figure={}))
-                            #     ]
-                            # )
+                            dbc.Row(dbc.Col(dcc.Graph(id="italy-plot")),),
                         ],
-                        width=6
+                        md=6,
                     ),
                     dbc.Col(
                         [
                             dbc.Col(dcc.Graph(id="region-line", figure={})),
-                            dcc.Graph(id="bar_plot_time", figure={})
+                            dcc.Graph(id="bar_plot_time", figure={}),
                         ],
-                        width=6
-                    )
+                        md=6,
+                    ),
                 ],
             ),
         ],

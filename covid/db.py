@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 
-conn = os.environ.get("DB_CONN", "mysql://root:superset@127.0.0.1:3306/covid") 
+conn = os.environ.get("DB_CONN", "mysql://root:superset@127.0.0.1:3306/covid")
 
 engine = create_engine(conn)
 Session = sessionmaker(bind=engine)
@@ -156,4 +156,3 @@ def update_db(date: Optional[dt.datetime] = None, from_begin=False):
             insert_data(date=day)
         except HTTPError:
             log.error(f"No data for {day}")
-
