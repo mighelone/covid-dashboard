@@ -71,53 +71,50 @@ def set_layout(app: Dash):
                 [
                     dbc.Col(
                         [
-                            dcc.Dropdown(
-                                id="dropdown-menu",
-                                options=map_labels,
-                                value=DEFAULT
-                                # multi=False,
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        dcc.Dropdown(
+                                            id="dropdown-menu",
+                                            options=map_labels,
+                                            value=DEFAULT
+                                            # multi=False,
+                                        ),
+                                        md=4,
+                                    ),
+                                    dbc.Col(
+                                        dcc.DatePickerSingle(
+                                            id="select-date",
+                                            date=dt.date.today(),
+                                            min_date_allowed=dt.date(2020, 2, 24),
+                                            max_date_allowed=dt.date.today(),
+                                            style={"marginTop": "10px"},
+                                        ),
+                                        md=4
+                                    ),
+                                ]
                             ),
-                            dcc.DatePickerSingle(
-                                id="select-date",
-                                date=dt.date.today(),
-                                min_date_allowed=dt.date(2020, 2, 24),
-                                max_date_allowed=dt.date.today(),
-                                style={"marginTop": "10px"},
+                            dbc.Row(
+                                dbc.Col(dcc.Graph(id="italy-plot")),                
                             ),
+                            # dbc.Row(
+                            #     [
+                            #         
+                            #         dbc.Col(dcc.Graph(id="bar_plot_time", figure={}))
+                            #     ]
+                            # )
                         ],
-                        # align='center',
-                        width={"size": 2},
+                        width=6
                     ),
-                    dbc.Col(dcc.Graph(id="italy-plot")),
-                ]
+                    dbc.Col(
+                        [
+                            dbc.Col(dcc.Graph(id="region-line", figure={})),
+                            dcc.Graph(id="bar_plot_time", figure={})
+                        ],
+                        width=6
+                    )
+                ],
             ),
-            dbc.Row(dbc.Col(dcc.Graph(id="region-line", figure={}))),
-            # html.Div(style={"padding": 10}),
-            #
-            # dbc.Row(html.Hr()),
-            # dbc.Row(
-            #     [
-            #         dbc.Col([html.H5("Seleziona regione")], width={"size": 2}),
-            #         dbc.Col(
-            #             [
-            #                 dcc.Dropdown(
-            #                     id="dropdown-region",
-            #                     options=map_regions,
-            #                     value="Italia"
-            #                     # multi=False,
-            #                 ),
-            #             ],
-            #             width={"size": 4},
-            #         ),
-            #     ]
-            # ),
-            dbc.Row(
-                dbc.Col(dcc.Graph(id="bar_plot_time", figure={})),
-                style={"marginTop": "20px"},
-            ),
-            # dbc.Row(
-            #     dbc.Col(dcc.Graph(id="bar_plot_new_positives", figure={})),
-            #     style={"marginTop": "20px"},
-            # ),
-        ]
+        ],
+        fluid=True,
     )
