@@ -5,6 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Date, Float
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
+import os
 import logging
 from urllib.request import urlopen
 from urllib.error import HTTPError
@@ -14,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 
-conn = "mysql://root:superset@127.0.0.1:3306/covid"
+conn = os.environ.get("DB_CONN", "mysql://root:superset@127.0.0.1:3306/covid") 
 
 engine = create_engine(conn)
 Session = sessionmaker(bind=engine)
@@ -156,9 +157,3 @@ def update_db(date: Optional[dt.datetime] = None, from_begin=False):
         except HTTPError:
             log.error(f"No data for {day}")
 
-
-# def update_db_region():
-#     session = Session()
-#     fname = "https://raw.githubusercontent.com/MatteoHenryChinaski/Comuni-Italiani-2018-Sql-Json-excel/master/italy_regions.json"
-
-#     with urlopen(fname) as response:
