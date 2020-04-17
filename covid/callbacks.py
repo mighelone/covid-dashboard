@@ -191,7 +191,7 @@ def set_callbacks(app: Dash):
         ],
     )
     def update_region_line_plot(value: str, hoverData):
-        log.info(f"hover={hoverData}")
+        # log.info(f"hover={hoverData}")
         region = (
             [v["hovertext"] for v in hoverData["points"]][0] if hoverData else "Italia"
         )
@@ -199,5 +199,5 @@ def set_callbacks(app: Dash):
         # regions_select = []
         # regions = regions_hover + regions_select
         # region = regions if regions_select else "Italia"
-        log.info(f"region={region}")
+        # log.info(f"region={region}")
         return generate_plot_region(region=region, value=value)
