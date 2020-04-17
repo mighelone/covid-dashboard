@@ -78,12 +78,12 @@ def set_layout(app: Dash):
                                 # multi=False,
                             ),
                             dcc.DatePickerSingle(
-                                id='select-date',
+                                id="select-date",
                                 date=dt.date.today(),
                                 min_date_allowed=dt.date(2020, 2, 24),
                                 max_date_allowed=dt.date.today(),
-                                style={"marginTop": "10px"}
-                            )
+                                style={"marginTop": "10px"},
+                            ),
                         ],
                         # align='center',
                         width={"size": 2},
@@ -91,9 +91,7 @@ def set_layout(app: Dash):
                     dbc.Col(dcc.Graph(id="italy-plot")),
                 ]
             ),
-            dbc.Row(
-                dbc.Col(dcc.Graph(id="region-line", figure={}))
-            ),
+            dbc.Row(dbc.Col(dcc.Graph(id="region-line", figure={}))),
             # html.Div(style={"padding": 10}),
             #
             # dbc.Row(html.Hr()),

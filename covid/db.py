@@ -43,27 +43,29 @@ class ItalyRegion(Base):
     note_it = Column(String(100), nullable=True)
     note_en = Column(String(100), nullable=True)
 
+
 class ItalyRegionBase(Base):
     __tablename__ = "italy_region_base"
     cod_istat = Column(Integer, primary_key=True)
     regiob = Column(String(50))
     superficie = Column(Float)
     num_residenti = Column(Integer)
-    num_comuni = Column(Integer)                 
+    num_comuni = Column(Integer)
     num_provincie = Column(Integer)
     presidente = Column(String(100))
     cod_fiscale = Column(Float)
     piva = Column(Float)
     pec = Column(String(100))
-    sito  = Column(String(100))   
+    sito = Column(String(100))
     sede = Column(String(100))
 
 
 Base.metadata.create_all(engine)
 
+
 def get_field(field: str):
     try:
-        result = int(field)        
+        result = int(field)
     except ValueError:
         try:
             result = float(field)
@@ -73,6 +75,7 @@ def get_field(field: str):
             except ParserError:
                 result = field
     return result
+
 
 """
 Abruzzo 13
@@ -97,6 +100,8 @@ Umbria 10
 Valle d'Aosta 2
 Veneto 5
 """
+
+
 def get_singlefile(date: dt.datetime):
     fname = f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-regioni-{date:%Y%m%d}.csv"
     with urlopen(fname) as response:
@@ -105,7 +110,7 @@ def get_singlefile(date: dt.datetime):
         for line in response:
             values = [get_field(value) for value in line.decode().strip().split(",")]
             d = dict(zip(columns, values))
-            if d['denominazione_regione'] in  ('P.A. Bolzano', 'P.A. Trento'):
+            if d["denominazione_regione"] in ("P.A. Bolzano", "P.A. Trento"):
                 trentino.append(d)
             else:
                 yield d
@@ -113,15 +118,14 @@ def get_singlefile(date: dt.datetime):
             key: (value + trentino[1][key] if (isinstance(value, int)) else value)
             for key, value in trentino[0].items()
         }
-        trentino_all['codice_regione'] = 4
-        trentino_all['denominazione_regione'] = "Trentino Alto Adige"
+        trentino_all["codice_regione"] = 4
+        trentino_all["denominazione_regione"] = "Trentino Alto Adige"
         yield trentino_all
-
 
 
 def insert_data(date: dt.datetime):
     # df = get_singlefile(date)
-    # data = df.to_dict(orient='records')  
+    # data = df.to_dict(orient='records')
     session = Session()
     try:
         for row in get_singlefile(date):
@@ -140,8 +144,8 @@ def insert_data(date: dt.datetime):
         session.close()
 
 
-def update_db(date:Optional[dt.datetime]=None, from_begin=False):
-    
+def update_db(date: Optional[dt.datetime] = None, from_begin=False):
+
     date = date or dt.datetime.now()
     start_date = dt.datetime(2020, 2, 24) if from_begin else date
 
@@ -151,6 +155,7 @@ def update_db(date:Optional[dt.datetime]=None, from_begin=False):
             insert_data(date=day)
         except HTTPError:
             log.error(f"No data for {day}")
+
 
 # def update_db_region():
 #     session = Session()
