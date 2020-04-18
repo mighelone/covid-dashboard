@@ -1,0 +1,14 @@
+# TODO bucket list
+- [x] Find how to revert back plots to Italy
+- [x] Use click instead of Hover
+- [x] Show a wait animation when updating plot (dcc.Loading)
+- [x] Link bottom plot to top plot zoom
+- [ ] remove dependency from dask-bootstrap
+- [x] Data selection using YYYY-MM-DD
+- [ ] Position of Title in Navbar 
+- [ ] Add my email reference
+- [ ] Add international plots
+- [ ] Rename IDs/ functions to be more consistent
+- [ ] Automatic update of the data
+- [ ] Use a less detailed jsonmap for Italy
+- [ ] Use store to save data
