@@ -57,7 +57,10 @@ def generate_choropleth(value, data: Optional[dt.date] = None):
         template="plotly_white",
     )
     fig.update_geos(fitbounds="locations", visible=False)
-    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0},)
+    fig.update_layout(
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},
+        # clickmode= 'event+select'
+    )
     fig.layout.coloraxis.colorbar.update(x=0)
     return fig
 
@@ -165,7 +168,7 @@ def set_callbacks(app: Dash):
     @app.callback(
         Output(component_id="bar-plot-overall", component_property="figure"),
         [
-            Input(component_id="map-plot-italy", component_property="hoverData"),
+            Input(component_id="map-plot-italy", component_property="clickData"),
             Input(component_id="bar-plot-selected", component_property="relayoutData"),
         ],
     )
@@ -181,11 +184,12 @@ def set_callbacks(app: Dash):
         Output(component_id="bar-plot-selected", component_property="figure"),
         [
             Input(component_id="dropdown-menu", component_property="value"),
-            Input(component_id="map-plot-italy", component_property="hoverData"),
+            Input(component_id="map-plot-italy", component_property="clickData"),
             Input(component_id="bar-plot-overall", component_property="relayoutData"),
         ],
     )
     def update_bar_plot_selected(value: str, hoverData, relayout):
+        log.debug(f"clickData={hoverData}")
         region = (
             [v["hovertext"] for v in hoverData["points"]][0] if hoverData else "Italia"
         )

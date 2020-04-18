@@ -116,13 +116,36 @@ def set_layout(app: Dash):
                                 dbc.Col(
                                     dbc.Jumbotron(
                                         [
-                                            dcc.Markdown(
-                                                """
-                                        - Muovi il mouse sopra una regione per aggiornare i grafici a sinistra.
-                                        - Il valore rappresentato nella mappa puo' essere cambiato selezionando un nuovo valore dal menu a tendina in alto a sinistra
-                                        - Seleziona la data in alto a sinistra per mostrare il valore nella data selezionata.
-                                        """
-                                            )
+                                            html.H5("Istruzioni"),
+                                            html.Div(
+                                                [
+                                                    html.Div(
+                                                        [
+                                                            html.P(
+                                                                "Clicca su una regione per aggiornare i grafici a destra."
+                                                            )
+                                                        ],
+                                                        className="li",
+                                                    ),
+                                                    html.Div(
+                                                        [
+                                                            html.P(
+                                                                "Il valore rappresentato nella mappa puo essere cambiato selezionando un nuovo valore dal menu a tendina in alto a sinistra"
+                                                            )
+                                                        ],
+                                                        className="li",
+                                                    ),
+                                                    html.Div(
+                                                        [
+                                                            html.P(
+                                                                "Seleziona la data in alto a sinistra per mostrare il valore nella data selezionata."
+                                                            )
+                                                        ],
+                                                        className="li",
+                                                    ),
+                                                ],
+                                                className="ul",
+                                            ),
                                         ]
                                     ),
                                     style={"marginTop": "20px"},
