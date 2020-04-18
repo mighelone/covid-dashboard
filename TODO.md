@@ -1,7 +1,7 @@
 # TODO bucket list
-- [ ] Find how to revert back plots to Italy
-- [ ] Use click instead of Hover
-- [ ] Use nice wait animation when loading data
+- [x] Find how to revert back plots to Italy
+- [x] Use click instead of Hover
+- [x] Show a wait animation when updating plot (dcc.Loading)
 - [x] Link bottom plot to top plot zoom
 - [ ] remove dependency from dask-bootstrap
 - [x] Data selection using YYYY-MM-DD
@@ -12,4 +12,3 @@
 - [ ] Automatic update of the data
 - [ ] Use a less detailed jsonmap for Italy
 - [ ] Use store to save data
-- [ ] Show a wait animation when updating plot (dcc.Loading)
