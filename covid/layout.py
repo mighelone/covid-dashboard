@@ -109,7 +109,7 @@ def set_layout(app: Dash):
                                 justify="around",
                             ),
                             dbc.Row(
-                                dbc.Col(dcc.Graph(id="map-plot-italy")),
+                                dbc.Col(dcc.Loading(dcc.Graph(id="map-plot-italy"))),
                                 style={"marginTop": "10px"},
                             ),
                             dbc.Row(
@@ -158,8 +158,8 @@ def set_layout(app: Dash):
                     ),
                     dbc.Col(
                         [
-                            dcc.Graph(id="bar-plot-selected", figure={}),
-                            dcc.Graph(id="bar-plot-overall", figure={}),
+                            dcc.Loading(dcc.Graph(id="bar-plot-selected", figure={})),
+                            dcc.Loading(dcc.Graph(id="bar-plot-overall", figure={})),
                         ],
                         md=6,
                     ),
