@@ -52,8 +52,8 @@ def get_italy_map_region() -> Dict[str, Any]:
     Returns:
         [type] -- [description]
     """
-    # path = os.path.join(data_path, )
-    path = data_path / "../data/limits_IT_regions.geojson"
+    # path = data_path / "../data/limits_IT_regions.geojson"
+    path = data_path / "../data/italy-reduced.geojson"
 
     with open(path, "r") as f:
         data = json.load(f)
