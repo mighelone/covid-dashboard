@@ -62,7 +62,7 @@ def generate_choropleth(value, data: Optional[dt.date] = None):
     return fig
 
 
-def generate_bar_plot_time(
+def generate_bar_plot_overall(
     region: str = "Italy",
     columns: List[str] = [
         "dimessi_guariti",
@@ -121,7 +121,7 @@ def generate_bar_plot_new_positives(region="Italia"):
     )
 
 
-def generate_plot_region(region="Italia", value="totale_casi"):
+def generate_bar_plot_selected(region="Italia", value="totale_casi"):
     df1 = df[["data", "denominazione_regione", value]]
     if region == "Italia":
         df1 = df1.groupby(["data"], as_index=False).sum()
@@ -161,33 +161,29 @@ def set_callbacks(app: Dash):
         return generate_choropleth(value, date)  # , generate_plot(value)
 
     @app.callback(
-        Output(component_id="bar_plot_time", component_property="figure"),
-        # [Input(component_id="dropdown-region", component_property="value")],
+        Output(component_id="bar-plot-overall", component_property="figure"),
         [Input(component_id="italy-plot", component_property="hoverData")],
     )
-    def update_bar_plot_time(hoverData):
+    def update_bar_plot_overall(hoverData):
         region = (
             [v["hovertext"] for v in hoverData["points"]][0] if hoverData else "Italia"
         )
-        return generate_bar_plot_time(
-            region
-        )  # , generate_bar_plot_new_positives(value)
+        return generate_bar_plot_overall(region)
 
     @app.callback(
-        Output(component_id="region-line", component_property="figure"),
+        Output(component_id="bar-plot-selected", component_property="figure"),
         [
             Input(component_id="dropdown-menu", component_property="value"),
             Input(component_id="italy-plot", component_property="hoverData"),
-            Input(component_id="bar_plot_time", component_property="relayoutData"),
+            Input(component_id="bar-plot-overall", component_property="relayoutData"),
         ],
-        # [State(component_id="region-line", component_property="figure")]
     )
-    def update_region_line_plot(value: str, hoverData, selectedData):
+    def update_bar_plot_selected(value: str, hoverData, selectedData):
         log.info(f"value={value} hover={hoverData} sel={selectedData}")
         region = (
             [v["hovertext"] for v in hoverData["points"]][0] if hoverData else "Italia"
         )
-        fig = generate_plot_region(region=region, value=value)
+        fig = generate_bar_plot_selected(region=region, value=value)
 
         if selectedData:
             if "xaxis.range[0]" in selectedData:

@@ -6,8 +6,6 @@ import plotly.express as px
 
 import datetime as dt
 
-from .callbacks import generate_plot_region
-
 
 map_labels = [
     {"label": l.replace("_", " "), "value": l}
@@ -52,7 +50,7 @@ map_regions = [
     ]
 ]
 
-DEFAULT = "totale_casi"
+DEFAULT = "variazione_totale_positivi"
 
 
 def set_layout(app: Dash):
@@ -100,6 +98,8 @@ def set_layout(app: Dash):
                                             date=dt.date.today(),
                                             min_date_allowed=dt.date(2020, 2, 24),
                                             max_date_allowed=dt.date.today(),
+                                            stay_open_on_select=False,
+                                            display_format="YYYY MM DD",
                                             # style={"marginTop": "10px"},
                                         ),
                                         md=4,
@@ -135,8 +135,8 @@ def set_layout(app: Dash):
                     ),
                     dbc.Col(
                         [
-                            dbc.Col(dcc.Graph(id="region-line", figure={})),
-                            dcc.Graph(id="bar_plot_time", figure={}),
+                            dcc.Graph(id="bar-plot-selected", figure={}),
+                            dcc.Graph(id="bar-plot-overall", figure={}),
                         ],
                         md=6,
                     ),
