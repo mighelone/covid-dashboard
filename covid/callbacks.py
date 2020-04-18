@@ -103,26 +103,21 @@ def generate_bar_plot_overall(
     )
 
 
-def update_xaxis(fig: go.Figure, selectedData) -> go.Figure:
-    """Update fig xaxis with selectedData
+def update_xaxis(fig: go.Figure, relayout) -> go.Figure:
+    """Update fig xaxis with relayout
     
     Arguments:
         fig {go.Figure} -- Plotly fig
-        selectedData {[type]} -- [description]
+        relayout {[type]} -- [description]
     
     Returns:
         go.Figure -- modified figure
     """
-    if selectedData:
-        if "xaxis.range[0]" in selectedData:
-            log.info(f"Update layout")
-            log.info("Resize x")
+    if relayout:
+        if "xaxis.range[0]" in relayout:
             fig = fig.update_layout(
                 xaxis=go.layout.XAxis(
-                    range=[
-                        selectedData["xaxis.range[0]"],
-                        selectedData["xaxis.range[1]"],
-                    ]
+                    range=[relayout["xaxis.range[0]"], relayout["xaxis.range[1]"],]
                 )
             )
     return fig
@@ -174,12 +169,12 @@ def set_callbacks(app: Dash):
             Input(component_id="bar-plot-selected", component_property="relayoutData"),
         ],
     )
-    def update_bar_plot_overall(hoverData, selectedData):
+    def update_bar_plot_overall(hoverData, relayout):
         region = (
             [v["hovertext"] for v in hoverData["points"]][0] if hoverData else "Italia"
         )
         fig = generate_bar_plot_overall(region)
-        fig = update_xaxis(fig, selectedData)
+        fig = update_xaxis(fig, relayout)
         return fig
 
     @app.callback(
@@ -190,11 +185,10 @@ def set_callbacks(app: Dash):
             Input(component_id="bar-plot-overall", component_property="relayoutData"),
         ],
     )
-    def update_bar_plot_selected(value: str, hoverData, selectedData):
-        log.info(f"value={value} hover={hoverData} sel={selectedData}")
+    def update_bar_plot_selected(value: str, hoverData, relayout):
         region = (
             [v["hovertext"] for v in hoverData["points"]][0] if hoverData else "Italia"
         )
         fig = generate_bar_plot_selected(region=region, value=value)
-        fig = update_xaxis(fig, selectedData)
+        fig = update_xaxis(fig, relayout)
         return fig
