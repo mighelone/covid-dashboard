@@ -1,5 +1,5 @@
 from dash import Dash
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
@@ -26,18 +26,12 @@ def generate_choropleth(value, data: Optional[dt.date] = None):
         if isinstance(data, str)
         else max_data
     )
-    log.info(f"Generating map plot for {data}..")
-    # if isinstance(data, str):
-    #     data = min(dt.datetime.strptime(data, '%Y-%m-%d').date(), max_data)
-    # elif data is None:
-    #     data = max_data
+    log.debug(f"Generating map plot for {data}..")
     df1 = df.loc[df["data"].dt.date == data, :]
-    fig = px.choropleth_mapbox(
+    fig = px.choropleth(
         df1,
         geojson=map_data,
-        # locations="codice_regione",
         locations="codice_regione",
-        # color="terapia_intensiva",
         color=value,
         center={"lon": 12, "lat": 42},
         featureidkey="properties.reg_istat_code_num",
@@ -55,19 +49,16 @@ def generate_choropleth(value, data: Optional[dt.date] = None):
             # "totale_casi",
             # "tamponi",
         ],
-        zoom=4.7,
         title=value.replace("_", ""),
-        mapbox_style="carto-positron",
-        # projection="equirectangular",
+        projection="mercator",
         color_continuous_scale="Pinkyl",
-        # range_color=(0, 12),
-        # scope="europe",
-        # labels={"value": "something"},
-        # width=900,
         height=600,
+        width=700,
+        template="plotly_white",
     )
-    # fig.update_geos(fitbounds="locations", visible=False, overwrite=True)
-    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    fig.update_geos(fitbounds="locations", visible=False)
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0},)
+    fig.layout.coloraxis.colorbar.update(x=0)
     return fig
 
 
@@ -187,17 +178,27 @@ def set_callbacks(app: Dash):
         [
             Input(component_id="dropdown-menu", component_property="value"),
             Input(component_id="italy-plot", component_property="hoverData"),
-            # Input(component_id='italy-plot', component_property='selectedData')
+            Input(component_id="bar_plot_time", component_property="relayoutData"),
         ],
+        # [State(component_id="region-line", component_property="figure")]
     )
-    def update_region_line_plot(value: str, hoverData):
-        # log.info(f"hover={hoverData}")
+    def update_region_line_plot(value: str, hoverData, selectedData):
+        log.info(f"value={value} hover={hoverData} sel={selectedData}")
         region = (
             [v["hovertext"] for v in hoverData["points"]][0] if hoverData else "Italia"
         )
-        # regions_select = [v['hovertext'] for v in selectData['points']][0] if hoverData else []
-        # regions_select = []
-        # regions = regions_hover + regions_select
-        # region = regions if regions_select else "Italia"
-        # log.info(f"region={region}")
-        return generate_plot_region(region=region, value=value)
+        fig = generate_plot_region(region=region, value=value)
+
+        if selectedData:
+            if "xaxis.range[0]" in selectedData:
+                log.info(f"Update layout")
+                log.info("Resize x")
+                fig = fig.update_layout(
+                    xaxis=go.layout.XAxis(
+                        range=[
+                            selectedData["xaxis.range[0]"],
+                            selectedData["xaxis.range[1]"],
+                        ]
+                    )
+                )
+        return fig
