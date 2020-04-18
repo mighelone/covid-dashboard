@@ -1,7 +1,7 @@
 import sys
 
 # add your project directory to the sys.path
-project_home = u"/home/mighelone/covid-dashboard"
+project_home = "/home/mighelone/covid-dashboard"
 if project_home not in sys.path:
     sys.path = [project_home] + sys.path
 
