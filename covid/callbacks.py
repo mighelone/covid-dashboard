@@ -103,22 +103,29 @@ def generate_bar_plot_overall(
     )
 
 
-def generate_bar_plot_new_positives(region="Italia"):
-    df1 = df[["data", "denominazione_regione", "variazione_totale_positivi"]]
-    if region == "Italia":
-        df1 = df1.groupby(["data"], as_index=False).sum()
-    else:
-        df1 = df1.query("denominazione_regione==@region")
-    return go.Figure(
-        data=[go.Bar(name=region, x=df1["data"], y=df1["variazione_totale_positivi"])],
-        layout=go.Layout(
-            plot_bgcolor="white",
-            barmode="stack",
-            legend=dict(
-                x=0.02, y=0.98, title=f"<b> {region} </b>", traceorder="normal",
-            ),
-        ),
-    )
+def update_xaxis(fig: go.Figure, selectedData) -> go.Figure:
+    """Update fig xaxis with selectedData
+    
+    Arguments:
+        fig {go.Figure} -- Plotly fig
+        selectedData {[type]} -- [description]
+    
+    Returns:
+        go.Figure -- modified figure
+    """
+    if selectedData:
+        if "xaxis.range[0]" in selectedData:
+            log.info(f"Update layout")
+            log.info("Resize x")
+            fig = fig.update_layout(
+                xaxis=go.layout.XAxis(
+                    range=[
+                        selectedData["xaxis.range[0]"],
+                        selectedData["xaxis.range[1]"],
+                    ]
+                )
+            )
+    return fig
 
 
 def generate_bar_plot_selected(region="Italia", value="totale_casi"):
@@ -151,7 +158,7 @@ def generate_bar_plot_selected(region="Italia", value="totale_casi"):
 
 def set_callbacks(app: Dash):
     @app.callback(
-        Output(component_id="italy-plot", component_property="figure"),
+        Output(component_id="map-plot-italy", component_property="figure"),
         [
             Input(component_id="dropdown-menu", component_property="value"),
             Input(component_id="select-date", component_property="date"),
@@ -162,19 +169,24 @@ def set_callbacks(app: Dash):
 
     @app.callback(
         Output(component_id="bar-plot-overall", component_property="figure"),
-        [Input(component_id="italy-plot", component_property="hoverData")],
+        [
+            Input(component_id="map-plot-italy", component_property="hoverData"),
+            Input(component_id="bar-plot-selected", component_property="relayoutData"),
+        ],
     )
-    def update_bar_plot_overall(hoverData):
+    def update_bar_plot_overall(hoverData, selectedData):
         region = (
             [v["hovertext"] for v in hoverData["points"]][0] if hoverData else "Italia"
         )
-        return generate_bar_plot_overall(region)
+        fig = generate_bar_plot_overall(region)
+        fig = update_xaxis(fig, selectedData)
+        return fig
 
     @app.callback(
         Output(component_id="bar-plot-selected", component_property="figure"),
         [
             Input(component_id="dropdown-menu", component_property="value"),
-            Input(component_id="italy-plot", component_property="hoverData"),
+            Input(component_id="map-plot-italy", component_property="hoverData"),
             Input(component_id="bar-plot-overall", component_property="relayoutData"),
         ],
     )
@@ -184,17 +196,5 @@ def set_callbacks(app: Dash):
             [v["hovertext"] for v in hoverData["points"]][0] if hoverData else "Italia"
         )
         fig = generate_bar_plot_selected(region=region, value=value)
-
-        if selectedData:
-            if "xaxis.range[0]" in selectedData:
-                log.info(f"Update layout")
-                log.info("Resize x")
-                fig = fig.update_layout(
-                    xaxis=go.layout.XAxis(
-                        range=[
-                            selectedData["xaxis.range[0]"],
-                            selectedData["xaxis.range[1]"],
-                        ]
-                    )
-                )
+        fig = update_xaxis(fig, selectedData)
         return fig
