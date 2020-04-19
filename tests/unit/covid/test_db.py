@@ -2,7 +2,8 @@ import pytest
 import datetime as dt
 import os
 
-os.environ["DB_CONN"] = "sqlite:///"
+# os.environ["DB_CONN"] = "sqlite:///"
+conn = "sqlite:///"
 from covid import db
 
 
@@ -21,7 +22,7 @@ def test_get_singlefile_province():
 
 @pytest.fixture
 def session() -> db.Session:
-    sess = db.Session()
+    sess = db.get_db_session(conn)
     sess.merge(db.ItalyRegion(codice_regione=20, denominazione_regione="Sardegna"))
     sess.merge(
         db.ItalyProvince(

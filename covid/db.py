@@ -11,14 +11,16 @@ from urllib.request import urlopen
 from urllib.error import HTTPError
 from dateutil.parser import parse, ParserError
 
+from sqlalchemy.orm import Session
+
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 
-conn = os.environ.get("DB_CONN", "mysql://root:superset@127.0.0.1:3306/covid")
+# conn = os.environ.get("DB_CONN", "mysql://root:superset@127.0.0.1:3306/covid")
 
-engine = create_engine(conn)
-Session = sessionmaker(bind=engine)
+# engine = create_engine(conn)
+
 Base = declarative_base()
 
 
@@ -89,7 +91,14 @@ class ItalyProvinceCase(Base):
     note_en = Column(String(100))
 
 
-Base.metadata.create_all(engine)
+def get_db_session(conn: Optional[str] = None):
+    conn = conn or os.environ.get(
+        "DB_CONN", "mysql://root:superset@127.0.0.1:3306/covid"
+    )
+    engine = create_engine(conn)
+    Base.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
+    return Session()
 
 
 def get_field(field: str):
@@ -178,7 +187,7 @@ def insert_data(
     # df = get_singlefile(date)
     # data = df.to_dict(orient='records')
     close_session = session is None
-    session = Session()
+    session = session or get_db_session()
     columns = [column.key for column in Table.__table__.columns]
     # province_columns = [column.key for column in ItalyProvinceCase.__table__.columns]
     try:
@@ -208,7 +217,7 @@ def create_table_region(session: Optional[Session] = None):
     """
     columns = [column.key for column in ItalyRegion.__table__.columns]
     close_session = session is None
-    session = session or Session()
+    session = session or get_db_session()
     try:
         for row in get_singlefile_regioni():
             session.merge(ItalyRegion(**{col: row[col] for col in columns}))
@@ -230,7 +239,7 @@ def create_table_province(session: Optional[Session] = None):
     """
     columns = [column.key for column in ItalyProvince.__table__.columns]
     close_session = session is None
-    session = session or Session()
+    session = session or get_db_session()
     try:
         for row in get_singlefile_province():
             session.merge(ItalyProvince(**{col: row[col] for col in columns}))
@@ -244,14 +253,29 @@ def create_table_province(session: Optional[Session] = None):
             session.close()
 
 
-def update_db(date: Optional[dt.datetime] = None, from_begin=False):
+def update_db(session: Session, date: Optional[dt.datetime] = None, from_begin=False):
 
     date = date or dt.datetime.now()
     start_date = dt.datetime(2020, 2, 24) if from_begin else date
-
     for day in pd.date_range(start=start_date, end=date, freq="D"):
         log.info(f"Reading data for {day}")
         try:
-            insert_data(date=day)
+            log.info("... reading regioni ...")
+            insert_data(
+                date=day,
+                Table=ItalyRegionCase,
+                get_file=get_singlefile_regioni,
+                session=session,
+            )
+        except HTTPError:
+            log.error(f"No data for {day}")
+        try:
+            log.info("... reading province ...")
+            insert_data(
+                date=day,
+                Table=ItalyProvinceCase,
+                get_file=get_singlefile_province,
+                session=session,
+            )
         except HTTPError:
             log.error(f"No data for {day}")
