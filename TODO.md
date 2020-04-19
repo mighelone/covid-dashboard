@@ -10,5 +10,5 @@
 - [ ] Add international plots
 - [ ] Rename IDs/ functions to be more consistent
 - [ ] Automatic update of the data
-- [ ] Use a less detailed jsonmap for Italy
+- [x] Use a less detailed jsonmap for Italy
 - [ ] Use store to save data
