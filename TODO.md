@@ -5,10 +5,15 @@
 - [x] Link bottom plot to top plot zoom
 - [ ] remove dependency from dask-bootstrap
 - [x] Data selection using YYYY-MM-DD
-- [ ] Position of Title in Navbar 
+- [x] Position of Title in Navbar 
 - [ ] Add my email reference
 - [ ] Add international plots
-- [ ] Rename IDs/ functions to be more consistent
+- [x] Rename IDs/ functions to be more consistent
 - [ ] Automatic update of the data
 - [x] Use a less detailed jsonmap for Italy
 - [ ] Use store to save data
+- [ ] Restructure DB
+    - [x] Add provinces
+- [ ] Unit tests
+    - [x] test db calls
+    - [ ] Mock data download

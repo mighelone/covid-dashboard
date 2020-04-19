@@ -5,18 +5,20 @@ import plotly.graph_objects as go
 import pandas as pd
 import datetime as dt
 from typing import List, Optional
+import os
 import dash
 
 import logging
 
-from .data import get_italy_map_region, get_time_data_db, get_total_data_db, get_db_data
+from .data import get_italy_map_region, get_db_region_data
 
 log = logging.getLogger(__name__)
 
 # cache data
+conn = os.environ.get("DB_CONN", "sqlite:///covid.db")
 log.info("Loading data...")
 map_data = get_italy_map_region()
-df: pd.DataFrame = get_db_data()
+df: pd.DataFrame = get_db_region_data(conn)
 # historical_df = get_time_data()
 
 
