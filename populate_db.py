@@ -9,27 +9,57 @@ log = logging.getLogger(__name__)
 from covid import db
 
 
-@click.command()
+@click.group()
 @click.option(
     "--db-conn",
     "-d",
     default="sqlite:///covid.db",
     envvar="DB_CONN",
-    help="Database connection",
+    help="Database connection (sqlalchemy format)",
 )
-@click.option("--full/--no-full", default=False, help="Fully populate database")
+@click.pass_context
+def main(ctx: click.Context, db_conn: str):
+    """Manage the COVID 19 database for Italy
+    """
+    ctx.ensure_object(dict)
+    ctx.obj["db_conn"] = db_conn
+
+
+@main.command()
 @click.option(
-    "--date", default=dt.datetime.today().strftime("%Y-%m-%d"), type=click.DateTime()
+    "--full/--no-full", default=False, help="Fully populate database from starting date"
 )
-def main(db_conn: str, full: bool, date: dt.datetime):
-    session = db.get_db_session(db_conn)
+@click.option(
+    "--date",
+    default=dt.datetime.today().strftime("%Y-%m-%d"),
+    type=click.DateTime(),
+    help="Last day to update db",
+)
+@click.pass_context
+def update(ctx: click.Context, full: bool, date: dt.datetime):
+    """
+    Update the province/region case tables with new data
+    """
+    session = db.get_db_session(ctx.obj["db_conn"])
+    log.info(f"Updating tables casi...")
+    db.update_db(date=date, from_begin=full, session=session)
+    session.close()
+
+
+@main.command()
+@click.pass_context
+def init(ctx: click.Context):
+    """
+    Init the province/region tables with basic data. 
+    Run update after to populate the province/region case tables
+    """
+    session = db.get_db_session(ctx.obj["db_conn"])
     # session = db.Session(bind=sqlalchemy.create_engine(db_conn))
     log.info(f"Initializing table italy_regione...")
     db.create_table_region(session=session)
     log.info(f"Initializing table italy_province...")
     db.create_table_province(session=session)
-    log.info(f"Updating tables casi...")
-    db.update_db(date=date, from_begin=full, session=session)
+    session.close()
 
 
 if __name__ == "__main__":

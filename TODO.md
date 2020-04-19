@@ -17,3 +17,4 @@
 - [ ] Unit tests
     - [x] test db calls
     - [ ] Mock data download
+- [ ] Add a click action to modify date when click the bar plot
