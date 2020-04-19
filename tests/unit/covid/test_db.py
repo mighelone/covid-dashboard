@@ -101,3 +101,12 @@ def test_create_table_region(session):
 
     sardegna = session.query(db.ItalyRegion).get(20)
     assert sardegna.denominazione_regione == "Sardegna"
+
+
+def test_create_table_province(session):
+    db.create_table_province(session)
+    provinces = session.query(db.ItalyProvince).all()
+    assert len(provinces) == 128
+
+    # sardegna = session.query(db.ItalyRegion).get(20)
+    # assert sardegna.denominazione_regione == "Sardegna"

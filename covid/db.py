@@ -164,7 +164,9 @@ def get_singlefile_regioni(
     yield trentino_all
 
 
-def get_singlefile_province(date: Optional[dt.datetime]) -> Iterator[Dict[str, Any]]:
+def get_singlefile_province(
+    date: Optional[dt.datetime] = None,
+) -> Iterator[Dict[str, Any]]:
     date = date.strftime("%Y%m%d") if date else "latest"
     uri = f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-province/dpc-covid19-ita-province-{date}.csv"
     yield from get_singlefile(uri)
@@ -205,6 +207,7 @@ def create_table_region(session: Optional[Session] = None):
             session.merge(ItalyRegion(**{col: row[col] for col in columns}))
     except:
         session.rollback()
+        raise
     finally:
         if close_session:
             session.commit()
@@ -221,9 +224,10 @@ def create_table_province(session: Optional[Session] = None):
     try:
         session = session or Session()
         for row in get_singlefile_province():
-            session.merge(ItalyRegion(**{col: row[col] for col in columns}))
+            session.merge(ItalyProvince(**{col: row[col] for col in columns}))
     except:
         session.rollback()
+        raise
     finally:
         if close_session:
             session.commit()
