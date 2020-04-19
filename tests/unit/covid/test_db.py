@@ -110,3 +110,34 @@ def test_create_table_province(session):
 
     # sardegna = session.query(db.ItalyRegion).get(20)
     # assert sardegna.denominazione_regione == "Sardegna"
+
+
+def test_insert_data_region(session):
+    date = dt.date(2020, 4, 10)
+    # session.delete(*session.query(db.ItalyRegionCase).filter(db.ItalyRegionCase.data==date).all())
+    db.insert_data(
+        date=date,
+        Table=db.ItalyRegionCase,
+        get_file=db.get_singlefile_regioni,
+        session=session,
+    )
+    results = (
+        session.query(db.ItalyRegionCase).filter(db.ItalyRegionCase.data == date).all()
+    )
+    assert len(results) == 20
+
+
+def test_insert_data_region(session):
+    date = dt.date(2020, 4, 10)
+    db.insert_data(
+        date=date,
+        Table=db.ItalyProvinceCase,
+        get_file=db.get_singlefile_province,
+        session=session,
+    )
+    results = (
+        session.query(db.ItalyProvinceCase)
+        .filter(db.ItalyProvinceCase.data == date)
+        .all()
+    )
+    assert len(results) == 128

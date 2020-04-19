@@ -172,25 +172,32 @@ def get_singlefile_province(
     yield from get_singlefile(uri)
 
 
-def insert_data(date: dt.datetime):
+def insert_data(
+    date: dt.datetime, Table: Base, get_file, session: Optional[Session] = None
+):
     # df = get_singlefile(date)
     # data = df.to_dict(orient='records')
+    close_session = session is None
     session = Session()
+    columns = [column.key for column in Table.__table__.columns]
+    # province_columns = [column.key for column in ItalyProvinceCase.__table__.columns]
     try:
-        log.info(f"Adding data for regioni on {date:%Y-%m-%d}...")
-        for row in get_singlefile_regioni(date):
+        log.debug(f"Adding data for {Table.__tablename__} on {date:%Y-%m-%d}...")
+        for row in get_file(date):
             log.debug(f"Row -> {row}")
-            row = ItalyRegion(**row)
+            row = Table(**{col: row[col] for col in columns})
             session.merge(row)
     except:
-        log.exception("Rollback BS session")
+        # log.exception("Rollback BS session")
         session.rollback()
+        raise
     else:
-        log.info("Commit DB session")
+        log.debug("Commit DB session")
         session.commit()
     finally:
-        log.info("Close DB session")
-        session.close()
+        log.debug("Close DB session")
+        if close_session:
+            session.close()
 
 
 def create_table_region(session: Optional[Session] = None):
@@ -201,16 +208,18 @@ def create_table_region(session: Optional[Session] = None):
     """
     columns = [column.key for column in ItalyRegion.__table__.columns]
     close_session = session is None
+    session = session or Session()
     try:
-        session = session or Session()
         for row in get_singlefile_regioni():
             session.merge(ItalyRegion(**{col: row[col] for col in columns}))
     except:
         session.rollback()
         raise
+    else:
+        session.commit()
     finally:
         if close_session:
-            session.commit()
+            session.close()
 
 
 def create_table_province(session: Optional[Session] = None):
@@ -221,16 +230,18 @@ def create_table_province(session: Optional[Session] = None):
     """
     columns = [column.key for column in ItalyProvince.__table__.columns]
     close_session = session is None
+    session = session or Session()
     try:
-        session = session or Session()
         for row in get_singlefile_province():
             session.merge(ItalyProvince(**{col: row[col] for col in columns}))
     except:
         session.rollback()
         raise
+    else:
+        session.commit()
     finally:
         if close_session:
-            session.commit()
+            session.close()
 
 
 def update_db(date: Optional[dt.datetime] = None, from_begin=False):
