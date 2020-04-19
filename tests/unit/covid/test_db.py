@@ -22,8 +22,8 @@ def test_get_singlefile_province():
 @pytest.fixture
 def session() -> db.Session:
     sess = db.Session()
-    sess.add(db.ItalyRegion(codice_regione=1, denominazione_regione="Sardegna"))
-    sess.add(
+    sess.merge(db.ItalyRegion(codice_regione=20, denominazione_regione="Sardegna"))
+    sess.merge(
         db.ItalyProvince(
             codice_provincia=1,
             sigla_provincia="CA",
@@ -31,24 +31,24 @@ def session() -> db.Session:
             denominazione_provincia="Cagliari",
         )
     )
-    sess.add(
+    sess.merge(
         db.ItalyRegionCase(
-            data=dt.date(2020, 4, 1), codice_regione=1, ricoverati_con_sintomi=50,
+            data=dt.date(2020, 4, 1), codice_regione=20, ricoverati_con_sintomi=50,
         )
     )
-    sess.add(
+    sess.merge(
         db.ItalyRegionCase(
-            data=dt.date(2020, 4, 2), codice_regione=1, ricoverati_con_sintomi=52,
+            data=dt.date(2020, 4, 2), codice_regione=20, ricoverati_con_sintomi=52,
         )
     )
-    sess.add(
+    sess.merge(
         db.ItalyProvinceCase(
-            data=dt.date(2020, 4, 1), codice_provincia=1, totale_casi=20,
+            data=dt.date(2020, 4, 1), codice_provincia=20, totale_casi=20,
         )
     )
-    sess.add(
+    sess.merge(
         db.ItalyProvinceCase(
-            data=dt.date(2020, 4, 2), codice_provincia=1, totale_casi=21,
+            data=dt.date(2020, 4, 2), codice_provincia=20, totale_casi=21,
         )
     )
     sess.commit()
