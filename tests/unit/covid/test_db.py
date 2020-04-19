@@ -20,7 +20,7 @@ def test_get_singlefile_province():
 
 
 @pytest.fixture
-def session(scope="session") -> db.Session:
+def session() -> db.Session:
     sess = db.Session()
     sess.add(db.ItalyRegion(codice_regione=1, denominazione_regione="Sardegna"))
     sess.add(
@@ -92,3 +92,12 @@ def test_db_region(session):
         (dt.date(2020, 4, 1), 1, "CA", "Cagliari", "Sardegna", 20),
         (dt.date(2020, 4, 2), 1, "CA", "Cagliari", "Sardegna", 21),
     ]
+
+
+def test_create_table_region(session):
+    db.create_table_region(session)
+    regions = session.query(db.ItalyRegion).all()
+    assert len(regions) == 20
+
+    sardegna = session.query(db.ItalyRegion).get(20)
+    assert sardegna.denominazione_regione == "Sardegna"

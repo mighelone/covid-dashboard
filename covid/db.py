@@ -141,8 +141,14 @@ def get_singlefile(uri: str) -> Iterator[Dict[str, Any]]:
             yield dict(zip(columns, values))
 
 
-def get_singlefile_regioni(date: dt.datetime) -> Iterator[Dict[str, Any]]:
-    uri = f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-regioni-{date:%Y%m%d}.csv"
+def get_singlefile_regioni(
+    date: Optional[dt.datetime] = None,
+) -> Iterator[Dict[str, Any]]:
+
+    date = date.strftime("%Y%m%d") if date else "latest"
+
+    uri = f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-regioni-{date}.csv"
+    # https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-regioni-latest.csv
     trentino = []
     for row in get_singlefile(uri):
         if row["denominazione_regione"] in ("P.A. Bolzano", "P.A. Trento"):
@@ -161,27 +167,6 @@ def get_singlefile_regioni(date: dt.datetime) -> Iterator[Dict[str, Any]]:
 def get_singlefile_province(date: dt.datetime) -> Iterator[Dict[str, Any]]:
     uri = f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-province/dpc-covid19-ita-province-{date:%Y%m%d}.csv"
     yield from get_singlefile(uri)
-
-
-# def get_singlefile(date: dt.datetime):
-#     fname = f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-regioni-{date:%Y%m%d}.csv"
-#     with urlopen(fname) as response:
-#         columns = next(response).decode().strip().split(",")
-#         trentino = []
-#         for line in response:
-#             values = [get_field(value) for value in line.decode().strip().split(",")]
-#             d = dict(zip(columns, values))
-#             if d["denominazione_regione"] in ("P.A. Bolzano", "P.A. Trento"):
-#                 trentino.append(d)
-#             else:
-#                 yield d
-#         trentino_all = {
-#             key: (value + trentino[1][key] if (isinstance(value, int)) else value)
-#             for key, value in trentino[0].items()
-#         }
-#         trentino_all["codice_regione"] = 4
-#         trentino_all["denominazione_regione"] = "Trentino Alto Adige"
-#         yield trentino_all
 
 
 def insert_data(date: dt.datetime):
@@ -203,6 +188,25 @@ def insert_data(date: dt.datetime):
     finally:
         log.info("Close DB session")
         session.close()
+
+
+def create_table_region(session: Optional[Session] = None):
+    """Initialize the italy_region table
+    
+    Arguments:
+        session {Optional[Session]} -- DB session if none a new one is created and closed 
+    """
+    columns = [column.key for column in ItalyRegion.__table__.columns]
+    close_session = session is None
+    try:
+        session = session or Session()
+        for row in get_singlefile_regioni():
+            session.merge(ItalyRegion(**{col: row[col] for col in columns}))
+    except:
+        session.rollback()
+    finally:
+        if close_session:
+            session.commit()
 
 
 def update_db(date: Optional[dt.datetime] = None, from_begin=False):
