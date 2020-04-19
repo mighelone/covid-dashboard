@@ -1,8 +1,8 @@
-from typing import Optional
+from typing import Optional, List, Dict, Any, Iterator
 import datetime as dt
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Date, Float
+from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
 import os
@@ -24,12 +24,19 @@ Base = declarative_base()
 
 class ItalyRegion(Base):
     __tablename__ = "italy_region"
-    data = Column(Date, primary_key=True)
-    stato = Column(String(50))
+    # stato = Column(String(50))
     codice_regione = Column(Integer, primary_key=True)
     denominazione_regione = Column(String(50))
-    lat = Column(String(50))
-    long = Column(String(50))
+    lat = Column(Float)
+    long = Column(Float)
+
+
+class ItalyRegionCase(Base):
+    __tablename__ = "italy_region_case"
+    data = Column(Date, primary_key=True)
+    codice_regione = Column(
+        Integer, ForeignKey("italy_region.codice_regione"), primary_key=True
+    )
     ricoverati_con_sintomi = Column(Integer)
     terapia_intensiva = Column(Integer)
     totale_ospedalizzati = Column(Integer)
@@ -59,6 +66,27 @@ class ItalyRegionBase(Base):
     pec = Column(String(100))
     sito = Column(String(100))
     sede = Column(String(100))
+
+
+class ItalyProvince(Base):
+    __tablename__ = "italy_province"
+    codice_provincia = Column(Integer, primary_key=True)
+    sigla_provincia = Column(String(2))
+    codice_regione = Column(Integer, ForeignKey("italy_region.codice_regione"))
+    denominazione_provincia = Column(String(50))
+    lat = Column(Float)
+    long = Column(Float)
+
+
+class ItalyProvinceCase(Base):
+    __tablename__ = "italy_province_case"
+    data = Column(Date, primary_key=True)
+    codice_provincia = Column(
+        Integer, ForeignKey("italy_province.codice_provincia"), primary_key=True
+    )
+    totale_casi = Column(Integer)
+    note_it = Column(String(100))
+    note_en = Column(String(100))
 
 
 Base.metadata.create_all(engine)
@@ -103,25 +131,57 @@ Veneto 5
 """
 
 
-def get_singlefile(date: dt.datetime):
-    fname = f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-regioni-{date:%Y%m%d}.csv"
-    with urlopen(fname) as response:
+def get_singlefile(uri: str) -> Iterator[Dict[str, Any]]:
+    # assert area in ('regioni', 'province'), "area should be defined as regioni/province"
+    # fname = f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-{area}-{date:%Y%m%d}.csv"
+    with urlopen(uri) as response:
         columns = next(response).decode().strip().split(",")
-        trentino = []
         for line in response:
             values = [get_field(value) for value in line.decode().strip().split(",")]
-            d = dict(zip(columns, values))
-            if d["denominazione_regione"] in ("P.A. Bolzano", "P.A. Trento"):
-                trentino.append(d)
-            else:
-                yield d
-        trentino_all = {
-            key: (value + trentino[1][key] if (isinstance(value, int)) else value)
-            for key, value in trentino[0].items()
-        }
-        trentino_all["codice_regione"] = 4
-        trentino_all["denominazione_regione"] = "Trentino Alto Adige"
-        yield trentino_all
+            yield dict(zip(columns, values))
+
+
+def get_singlefile_regioni(date: dt.datetime) -> Iterator[Dict[str, Any]]:
+    uri = f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-regioni-{date:%Y%m%d}.csv"
+    trentino = []
+    for row in get_singlefile(uri):
+        if row["denominazione_regione"] in ("P.A. Bolzano", "P.A. Trento"):
+            trentino.append(row)
+        else:
+            yield row
+    trentino_all = {
+        key: (value + trentino[1][key] if (isinstance(value, int)) else value)
+        for key, value in trentino[0].items()
+    }
+    trentino_all["codice_regione"] = 4
+    trentino_all["denominazione_regione"] = "Trentino Alto Adige"
+    yield trentino_all
+
+
+def get_singlefile_province(date: dt.datetime) -> Iterator[Dict[str, Any]]:
+    uri = f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-province/dpc-covid19-ita-province-{date:%Y%m%d}.csv"
+    yield from get_singlefile(uri)
+
+
+# def get_singlefile(date: dt.datetime):
+#     fname = f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-regioni-{date:%Y%m%d}.csv"
+#     with urlopen(fname) as response:
+#         columns = next(response).decode().strip().split(",")
+#         trentino = []
+#         for line in response:
+#             values = [get_field(value) for value in line.decode().strip().split(",")]
+#             d = dict(zip(columns, values))
+#             if d["denominazione_regione"] in ("P.A. Bolzano", "P.A. Trento"):
+#                 trentino.append(d)
+#             else:
+#                 yield d
+#         trentino_all = {
+#             key: (value + trentino[1][key] if (isinstance(value, int)) else value)
+#             for key, value in trentino[0].items()
+#         }
+#         trentino_all["codice_regione"] = 4
+#         trentino_all["denominazione_regione"] = "Trentino Alto Adige"
+#         yield trentino_all
 
 
 def insert_data(date: dt.datetime):
@@ -129,11 +189,11 @@ def insert_data(date: dt.datetime):
     # data = df.to_dict(orient='records')
     session = Session()
     try:
-        for row in get_singlefile(date):
+        log.info(f"Adding data for regioni on {date:%Y-%m-%d}...")
+        for row in get_singlefile_regioni(date):
             log.debug(f"Row -> {row}")
             row = ItalyRegion(**row)
             session.merge(row)
-            # session.commit()
     except:
         log.exception("Rollback BS session")
         session.rollback()
