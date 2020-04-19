@@ -5,64 +5,95 @@ import plotly.graph_objects as go
 import pandas as pd
 import datetime as dt
 from typing import List, Optional
+import os
 import dash
 
 import logging
 
-from .data import get_italy_map_region, get_time_data_db, get_total_data_db, get_db_data
+from . import data  # import get_italy_map_region, get_db_region_data
 
 log = logging.getLogger(__name__)
 
 # cache data
+conn = os.environ.get("DB_CONN", "sqlite:///covid.db")
 log.info("Loading data...")
-map_data = get_italy_map_region()
-df: pd.DataFrame = get_db_data()
+map_data_region = data.get_italy_map_region()
+region_df: pd.DataFrame = data.get_db_region_data(conn)
+province_df: pd.DataFrame = data.get_db_province_data(conn)
 # historical_df = get_time_data()
 
 
-def generate_choropleth(value, data: Optional[dt.date] = None):
-    max_data = df.data.dt.date.max()
+def aggregate_province_per_region(df: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate the province total cases by region, and set a string for the map hover
+    
+    Arguments:
+        df {pd.DataFrame} -- Province dataframe
+    
+    Returns:
+        pd.DataFrame -- Aggregated dataframe (rows=regions, columns=[codice_regione, tot_by_prov])
+    """
+
+    def aggregate(dfi):
+        tot = dfi["denominazione_provincia"].str.cat(
+            dfi["sigla_provincia"].str.cat(dfi["totale_casi"].astype(str), sep=": "),
+            sep=" ",
+        )
+        return "<br>".join(tot)
+
+    return (
+        (df.groupby("codice_regione").apply(aggregate))
+        .reset_index()
+        .rename(columns={0: "tot_by_prov"})
+    )
+
+
+def generate_map_region(value, data: Optional[dt.date] = None) -> go.Figure:
+    max_data = region_df.data.dt.date.max()
     data = (
         min(dt.datetime.strptime(data, "%Y-%m-%d").date(), max_data)
         if isinstance(data, str)
         else max_data
     )
     log.debug(f"Generating map plot for {data}..")
-    df1 = df.loc[df["data"].dt.date == data, :]
-    fig = px.choropleth(
-        df1,
-        geojson=map_data,
-        locations="codice_regione",
-        color=value,
-        # center={"lon": 12, "lat": 42},
+    # filter data for the given date
+    region_day_df = region_df.loc[region_df["data"].dt.date == data, :]
+    province_day_df = province_df.loc[province_df["data"].dt.date == data, :]
+    aggr_province = aggregate_province_per_region(province_day_df)
+
+    region_day_df = region_day_df.merge(aggr_province, on="codice_regione")
+
+    cp = go.Choropleth(
+        geojson=map_data_region,
+        locations=region_day_df["codice_regione"],
+        z=region_day_df[value],
         featureidkey="properties.reg_istat_code_num",
-        hover_name="denominazione_regione",
-        hover_data=[
-            # "ricoverati_con_sintomi",
-            # "terapia_intensiva",
-            # "totale_ospedalizzati",
-            # "isolamento_domiciliare",
-            "totale_positivi",
-            # "variazione_totale_positivi",
-            # "nuovi_positivi",
-            "dimessi_guariti",
-            "deceduti",
-            # "totale_casi",
-            # "tamponi",
+        colorscale="Pinkyl",
+        text=region_day_df["denominazione_regione"],
+        hovertemplate=(
+            "<b>%{text}</b><br><br>"
+            "totale positivi=%{customdata[1]}<br>"
+            "dimessi_guariti=%{customdata[2]}<br>"
+            "deceduti=%{customdata[3]}<br><br>"
+            "<b>Totale per provincie</b>:<br>"
+            "%{customdata[0]}"
+            "<extra></extra>"
+        ),
+        customdata=region_day_df[
+            ["tot_by_prov", "totale_positivi", "dimessi_guariti", "deceduti",]
         ],
-        title=value.replace("_", ""),
-        projection="mercator",
-        color_continuous_scale="Pinkyl",
-        height=600,
-        width=700,
-        template="plotly_white",
     )
-    fig.update_geos(fitbounds="locations", visible=False)
-    fig.update_layout(
-        margin={"r": 0, "t": 0, "l": 0, "b": 0},
-        # clickmode= 'event+select'
+
+    fig = go.Figure(
+        data=cp,
+        layout=go.Layout(
+            geo=go.layout.Geo(
+                fitbounds="locations", visible=False, projection={"type": "mercator"}
+            ),
+            height=800,
+            width=800,
+            margin={"r": 0, "t": 0, "l": 0, "b": 0},
+        ),
     )
-    fig.layout.coloraxis.colorbar.update(x=0)
     return fig
 
 
@@ -86,7 +117,7 @@ def generate_bar_plot_overall(
         [type] -- figure
     """
     # df = get_time_data_db(columns, region=region)
-    df1 = df[columns + ["data", "denominazione_regione"]]
+    df1 = region_df[columns + ["data", "denominazione_regione"]]
     if region != "Italia":
         df1 = df1.query("denominazione_regione==@region")
     else:
@@ -128,7 +159,7 @@ def update_xaxis(fig: go.Figure, relayout) -> go.Figure:
 
 
 def generate_bar_plot_selected(region="Italia", value="totale_casi"):
-    df1 = df[["data", "denominazione_regione", value]]
+    df1 = region_df[["data", "denominazione_regione", value]]
     if region == "Italia":
         df1 = df1.groupby(["data"], as_index=False).sum()
     else:
@@ -164,7 +195,7 @@ def set_callbacks(app: Dash):
         ],
     )
     def update_plot(value, date):
-        return generate_choropleth(value, date)  # , generate_plot(value)
+        return generate_map_region(value, date)  # , generate_plot(value)
 
     @app.callback(
         Output(component_id="bar-plot-overall", component_property="figure"),
@@ -180,9 +211,7 @@ def set_callbacks(app: Dash):
             region = "Italia"
         else:
             region = (
-                [v["hovertext"] for v in hoverData["points"]][0]
-                if hoverData
-                else "Italia"
+                [v["text"] for v in hoverData["points"]][0] if hoverData else "Italia"
             )
         fig = generate_bar_plot_overall(region)
         fig = update_xaxis(fig, relayout)
@@ -203,9 +232,7 @@ def set_callbacks(app: Dash):
             region = "Italia"
         else:
             region = (
-                [v["hovertext"] for v in hoverData["points"]][0]
-                if hoverData
-                else "Italia"
+                [v["text"] for v in hoverData["points"]][0] if hoverData else "Italia"
             )
         fig = generate_bar_plot_selected(region=region, value=value)
         fig = update_xaxis(fig, relayout)

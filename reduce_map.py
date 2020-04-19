@@ -84,7 +84,7 @@ def reduce_multipolygon(
     default=100,
     help="Mininum number of points for keeping a polygon",
 )
-def main(input_json, output_json, epsilon):
+def main(input_json, output_json, epsilon: float, limit: int):
 
     data = geojson.load(input_json)
 
