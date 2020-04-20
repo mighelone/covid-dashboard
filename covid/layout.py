@@ -79,6 +79,53 @@ def set_layout(app: Dash):
         in_navbar=True,
         label="Links",
     )
+
+    help_modal = dbc.Modal(
+        [
+            dbc.ModalHeader("Help"),
+            dbc.ModalBody(
+                html.Div(
+                    [
+                        html.H5("Istruzioni"),
+                        html.Div(
+                            [
+                                html.Div(
+                                    [
+                                        html.P(
+                                            "Clicca su una regione per aggiornare i grafici a destra."
+                                        )
+                                    ],
+                                    className="li",
+                                ),
+                                html.Div(
+                                    [
+                                        html.P(
+                                            "Il valore rappresentato nella mappa puo essere cambiato selezionando un nuovo valore dal menu a tendina in alto a sinistra"
+                                        )
+                                    ],
+                                    className="li",
+                                ),
+                                html.Div(
+                                    [
+                                        html.P(
+                                            "Seleziona la data in alto a sinistra per mostrare il valore nella data selezionata."
+                                        )
+                                    ],
+                                    className="li",
+                                ),
+                            ],
+                            className="ul",
+                        ),
+                    ]
+                )
+            ),
+            dbc.ModalFooter(
+                dbc.Button("Close", id="close-help-button", className="ml-auto",)
+            ),
+        ],
+        id="modal-help",
+    )
+
     navbar = dbc.Navbar(
         dbc.Container(
             [
@@ -101,21 +148,26 @@ def set_layout(app: Dash):
                     # href="https://plot.ly",
                 ),
                 dbc.NavbarToggler(id="navbar-toggler2"),
-                dbc.Collapse(
-                    dbc.Nav(
-                        [
-                            # dbc.NavItem(
-                            #     dbc.NavLink(
-                            #         "Dati", href="https://github.com/pcm-dpc/COVID-19"
-                            #     )
-                            # ),
-                            dropdown,
-                        ],
-                        className="ml-auto",
-                        navbar=True,
-                    ),
-                    id="navbar-collapse2",
-                    navbar=True,
+                dbc.Col(
+                    [
+                        dbc.Collapse(
+                            dbc.Nav(
+                                [
+                                    # dbc.NavItem(
+                                    #     dbc.NavLink(
+                                    #         "Dati", href="https://github.com/pcm-dpc/COVID-19"
+                                    #     )
+                                    # ),
+                                    dropdown,
+                                    dbc.NavItem(dbc.Button("Help", id="help-button")),
+                                ],
+                                className="ml-auto",
+                                navbar=True,
+                            ),
+                            id="navbar-collapse2",
+                            navbar=True,
+                        ),
+                    ]
                 ),
             ],
             fluid=True,
@@ -129,6 +181,7 @@ def set_layout(app: Dash):
     app.layout = dbc.Container(
         [
             navbar,
+            help_modal,
             dbc.Row(
                 [
                     dbc.Col(html.H6("Seleziona valore: "), align="center", md=2,),
@@ -163,61 +216,6 @@ def set_layout(app: Dash):
                             # color="primary",
                             className="mr-2",
                         ),
-                        md=1,
-                    ),
-                    dbc.Col(
-                        [
-                            dbc.Button("help", id="help-button"),
-                            dbc.Modal(
-                                [
-                                    dbc.ModalHeader("Help"),
-                                    dbc.ModalBody(
-                                        html.Div(
-                                            [
-                                                html.H5("Istruzioni"),
-                                                html.Div(
-                                                    [
-                                                        html.Div(
-                                                            [
-                                                                html.P(
-                                                                    "Clicca su una regione per aggiornare i grafici a destra."
-                                                                )
-                                                            ],
-                                                            className="li",
-                                                        ),
-                                                        html.Div(
-                                                            [
-                                                                html.P(
-                                                                    "Il valore rappresentato nella mappa puo essere cambiato selezionando un nuovo valore dal menu a tendina in alto a sinistra"
-                                                                )
-                                                            ],
-                                                            className="li",
-                                                        ),
-                                                        html.Div(
-                                                            [
-                                                                html.P(
-                                                                    "Seleziona la data in alto a sinistra per mostrare il valore nella data selezionata."
-                                                                )
-                                                            ],
-                                                            className="li",
-                                                        ),
-                                                    ],
-                                                    className="ul",
-                                                ),
-                                            ]
-                                        )
-                                    ),
-                                    dbc.ModalFooter(
-                                        dbc.Button(
-                                            "Close",
-                                            id="close-help-button",
-                                            className="ml-auto",
-                                        )
-                                    ),
-                                ],
-                                id="modal-help",
-                            ),
-                        ],
                         md=1,
                     ),
                 ],
