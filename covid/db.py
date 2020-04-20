@@ -54,20 +54,20 @@ class ItalyRegionCase(Base):
     note_en = Column(String(100), nullable=True)
 
 
-class ItalyRegionBase(Base):
-    __tablename__ = "italy_region_base"
-    cod_istat = Column(Integer, primary_key=True)
-    regiob = Column(String(50))
-    superficie = Column(Float)
-    num_residenti = Column(Integer)
-    num_comuni = Column(Integer)
-    num_provincie = Column(Integer)
-    presidente = Column(String(100))
-    cod_fiscale = Column(Float)
-    piva = Column(Float)
-    pec = Column(String(100))
-    sito = Column(String(100))
-    sede = Column(String(100))
+# class ItalyRegionBase(Base):
+#     __tablename__ = "italy_region_base"
+#     cod_istat = Column(Integer, primary_key=True)
+#     regiob = Column(String(50))
+#     superficie = Column(Float)
+#     num_residenti = Column(Integer)
+#     num_comuni = Column(Integer)
+#     num_provincie = Column(Integer)
+#     presidente = Column(String(100))
+#     cod_fiscale = Column(Float)
+#     piva = Column(Float)
+#     pec = Column(String(100))
+#     sito = Column(String(100))
+#     sede = Column(String(100))
 
 
 class ItalyProvince(Base):
