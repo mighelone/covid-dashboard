@@ -104,7 +104,7 @@ def generate_map_region(value: str, data: Optional[dt.date] = None) -> go.Figure
                 text=f"Distribuzione {value.replace('_', ' ')} {data:%Y-%m-%d}"
             ),
             height=800,
-            width=800,
+            # width=800,
             # margin={"r": 0, "t": 0, "l": 0, "b": 0},
         ),
     )
@@ -125,7 +125,8 @@ def generate_bar_plot_overall(
     
     Keyword Arguments:
         region {str} -- Region to visualize (default: {"Italy"})
-        columns {list} -- List of columns to plot as stacked bar (default: {["dimessi_guariti","isolamento_domiciliare","ricoverati_con_sintomi","terapia_intensiva","deceduti",]})
+        columns {list} -- List of columns to plot as stacked bar (default: {["dimessi_guariti","isolamento_domiciliare","ricoverati_con_sintomi",
+            "terapia_intensiva","deceduti",]})
     
     Returns:
         [type] -- figure
@@ -146,8 +147,10 @@ def generate_bar_plot_overall(
             plot_bgcolor="white",
             barmode="stack",
             legend=dict(
-                x=0.02, y=0.98, title=f"<b> {region} </b>", traceorder="normal",
+                x=0.02, y=0.98,  # title=f"<b> {region} </b>", traceorder="normal",
             ),
+            title=f"{region}: andamento casi",
+            height=400,
         ),
     )
 
@@ -191,11 +194,12 @@ def generate_bar_plot_selected(region="Italia", value="totale_casi"):
         layout=go.Layout(
             plot_bgcolor="white",
             barmode="stack",
-            yaxis=go.layout.YAxis(title=value.replace("_", " ")),
+            # yaxis=go.layout.YAxis(title=value.replace("_", " ")),
             legend=dict(
                 x=0.02, y=0.98, title=f"<b> {region} </b>", traceorder="normal",
             ),
             title=f"{region}: {value.replace('_', ' ')}",
+            height=400,
         ),
     )
 
@@ -251,3 +255,13 @@ def set_callbacks(app: Dash):
         fig = generate_bar_plot_selected(region=region, value=value)
         fig = update_xaxis(fig, relayout)
         return fig
+
+    @app.callback(
+        Output("modal-help", "is_open"),
+        [Input("help-button", "n_clicks"), Input("close-help-button", "n_clicks")],
+        [State("modal-help", "is_open")],
+    )
+    def toggle_modal(n1: int, n2: int, is_open: bool):
+        if n1 or n2:
+            return not is_open
+        return is_open

@@ -43,7 +43,7 @@ def get_db_region_data(conn: str) -> pd.DataFrame:
 
 
 def get_db_province_data(conn: str) -> pd.DataFrame:
-    log.info(f"Importing region data...")
+    log.info(f"Importing province data...")
     session = db.get_db_session(conn)
     try:
         query = (

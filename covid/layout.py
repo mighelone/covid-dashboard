@@ -129,110 +129,110 @@ def set_layout(app: Dash):
     app.layout = dbc.Container(
         [
             navbar,
-            html.Div(style={"padding": 10}),
+            dbc.Row(
+                [
+                    dbc.Col(html.H6("Seleziona valore: "), align="center", md=2,),
+                    dbc.Col(
+                        dcc.Dropdown(
+                            id="dropdown-menu",
+                            options=map_labels,
+                            value=DEFAULT
+                            # multi=False,
+                        ),
+                        align="center",
+                        md=3,
+                        # offset=3,
+                    ),
+                    dbc.Col(html.H6("Seleziona data: "), align="center", md=2,),
+                    dbc.Col(
+                        dcc.DatePickerSingle(
+                            id="select-date",
+                            date=dt.date.today(),
+                            min_date_allowed=dt.date(2020, 2, 24),
+                            max_date_allowed=dt.date.today(),
+                            stay_open_on_select=False,
+                            display_format="YYYY-MM-DD",
+                        ),
+                        md=3,
+                        align="center",
+                    ),
+                    dbc.Col(
+                        dbc.Button(
+                            "Italia",
+                            id="reset-button",
+                            # color="primary",
+                            className="mr-2",
+                        ),
+                        md=1,
+                    ),
+                    dbc.Col(
+                        [
+                            dbc.Button("help", id="help-button"),
+                            dbc.Modal(
+                                [
+                                    dbc.ModalHeader("Help"),
+                                    dbc.ModalBody(
+                                        html.Div(
+                                            [
+                                                html.H5("Istruzioni"),
+                                                html.Div(
+                                                    [
+                                                        html.Div(
+                                                            [
+                                                                html.P(
+                                                                    "Clicca su una regione per aggiornare i grafici a destra."
+                                                                )
+                                                            ],
+                                                            className="li",
+                                                        ),
+                                                        html.Div(
+                                                            [
+                                                                html.P(
+                                                                    "Il valore rappresentato nella mappa puo essere cambiato selezionando un nuovo valore dal menu a tendina in alto a sinistra"
+                                                                )
+                                                            ],
+                                                            className="li",
+                                                        ),
+                                                        html.Div(
+                                                            [
+                                                                html.P(
+                                                                    "Seleziona la data in alto a sinistra per mostrare il valore nella data selezionata."
+                                                                )
+                                                            ],
+                                                            className="li",
+                                                        ),
+                                                    ],
+                                                    className="ul",
+                                                ),
+                                            ]
+                                        )
+                                    ),
+                                    dbc.ModalFooter(
+                                        dbc.Button(
+                                            "Close",
+                                            id="close-help-button",
+                                            className="ml-auto",
+                                        )
+                                    ),
+                                ],
+                                id="modal-help",
+                            ),
+                        ],
+                        md=1,
+                    ),
+                ],
+                justify="around",
+            ),
             dbc.Row(
                 [
                     dbc.Col(
                         [
-                            dbc.Row(
-                                [
-                                    dbc.Col(
-                                        html.H6("Seleziona valore: "),
-                                        align="center",
-                                        md=2,
-                                    ),
-                                    dbc.Col(
-                                        dcc.Dropdown(
-                                            id="dropdown-menu",
-                                            options=map_labels,
-                                            value=DEFAULT
-                                            # multi=False,
-                                        ),
-                                        align="center",
-                                        md=4,
-                                        # offset=3,
-                                    ),
-                                    dbc.Col(
-                                        html.H6("Seleziona data: "),
-                                        align="center",
-                                        md=2,
-                                    ),
-                                    dbc.Col(
-                                        dcc.DatePickerSingle(
-                                            id="select-date",
-                                            date=dt.date.today(),
-                                            min_date_allowed=dt.date(2020, 2, 24),
-                                            max_date_allowed=dt.date.today(),
-                                            stay_open_on_select=False,
-                                            display_format="YYYY-MM-DD",
-                                        ),
-                                        md=3,
-                                        align="center",
-                                    ),
-                                    dbc.Col(
-                                        dbc.Button(
-                                            "Italia",
-                                            id="reset-button",
-                                            # color="primary",
-                                            className="mr-2",
-                                        ),
-                                        md=1,
-                                    ),
-                                ],
-                                justify="around",
-                            ),
-                            dbc.Row(
-                                dbc.Col(
-                                    dcc.Loading(
-                                        dcc.Graph(
-                                            id="map-plot-italy",
-                                            # figure=go.Figure(data={}, layout={'height': 800})
-                                        )
-                                    )
-                                ),
-                                style={"marginTop": "10px"},
-                            ),
-                            dbc.Row(
-                                dbc.Col(
-                                    dbc.Jumbotron(
-                                        [
-                                            html.H5("Istruzioni"),
-                                            html.Div(
-                                                [
-                                                    html.Div(
-                                                        [
-                                                            html.P(
-                                                                "Clicca su una regione per aggiornare i grafici a destra."
-                                                            )
-                                                        ],
-                                                        className="li",
-                                                    ),
-                                                    html.Div(
-                                                        [
-                                                            html.P(
-                                                                "Il valore rappresentato nella mappa puo essere cambiato selezionando un nuovo valore dal menu a tendina in alto a sinistra"
-                                                            )
-                                                        ],
-                                                        className="li",
-                                                    ),
-                                                    html.Div(
-                                                        [
-                                                            html.P(
-                                                                "Seleziona la data in alto a sinistra per mostrare il valore nella data selezionata."
-                                                            )
-                                                        ],
-                                                        className="li",
-                                                    ),
-                                                ],
-                                                className="ul",
-                                            ),
-                                        ]
-                                    ),
-                                    style={"marginTop": "20px"},
-                                    md=10,
-                                ),
-                                justify="center",
-                            ),
+                            dcc.Loading(
+                                dcc.Graph(
+                                    id="map-plot-italy",
+                                    # figure=go.Figure(data={}, layout={'height': 800})
+                                )
+                            )
                         ],
                         lg=5,
                     ),
