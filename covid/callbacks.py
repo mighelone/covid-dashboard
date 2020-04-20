@@ -47,7 +47,18 @@ def aggregate_province_per_region(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def generate_map_region(value, data: Optional[dt.date] = None) -> go.Figure:
+def generate_map_region(value: str, data: Optional[dt.date] = None) -> go.Figure:
+    """Generate the map region for the given data showing the given value
+    
+    Arguments:
+        value {str} -- Value to visualize
+    
+    Keyword Arguments:
+        data {Optional[dt.date]} -- Date to visualize (default: {None})
+    
+    Returns:
+        go.Figure -- [description]
+    """
     max_data = region_df.data.dt.date.max()
     data = (
         min(dt.datetime.strptime(data, "%Y-%m-%d").date(), max_data)
@@ -70,7 +81,7 @@ def generate_map_region(value, data: Optional[dt.date] = None) -> go.Figure:
         colorscale="Pinkyl",
         text=region_day_df["denominazione_regione"],
         hovertemplate=(
-            "<b>%{text}</b><br><br>"
+            "<b>%{text}</b><br><br>" + value + "=%{z}<br>"
             "totale positivi=%{customdata[1]}<br>"
             "dimessi_guariti=%{customdata[2]}<br>"
             "deceduti=%{customdata[3]}<br><br>"
@@ -89,9 +100,12 @@ def generate_map_region(value, data: Optional[dt.date] = None) -> go.Figure:
             geo=go.layout.Geo(
                 fitbounds="locations", visible=False, projection={"type": "mercator"}
             ),
+            title=go.layout.Title(
+                text=f"Distribuzione {value.replace('_', ' ')} {data:%Y-%m-%d}"
+            ),
             height=800,
             width=800,
-            margin={"r": 0, "t": 0, "l": 0, "b": 0},
+            # margin={"r": 0, "t": 0, "l": 0, "b": 0},
         ),
     )
     return fig

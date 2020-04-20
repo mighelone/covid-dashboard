@@ -234,14 +234,14 @@ def set_layout(app: Dash):
                                 justify="center",
                             ),
                         ],
-                        md=6,
+                        lg=5,
                     ),
                     dbc.Col(
                         [
                             dcc.Loading(dcc.Graph(id="bar-plot-selected", figure={})),
                             dcc.Loading(dcc.Graph(id="bar-plot-overall", figure={})),
                         ],
-                        md=6,
+                        lg=7,
                     ),
                 ],
             ),
