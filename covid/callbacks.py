@@ -62,19 +62,60 @@ def generate_map_region(value: str, data: Optional[dt.date] = None) -> go.Figure
     Returns:
         go.Figure -- [description]
     """
-    max_data = region_df.data.dt.date.max()
+    session = db.db.session
+    max_data = session.query(func.max(db.ItalyRegionCase.data)).first()[0]
+    # max_data = region_df.data.dt.date.max()
     data = (
         min(dt.datetime.strptime(data, "%Y-%m-%d").date(), max_data)
         if isinstance(data, str)
         else max_data
     )
+
+    concat = func.CONCAT(
+        db.ItalyProvince.denominazione_provincia,
+        " (",
+        db.ItalyProvince.sigla_provincia,
+        "): ",
+        db.ItalyProvinceCase.totale_casi,
+    )  # .label('provincia'),
+
+    sub_query = (
+        session.query(
+            db.ItalyProvince.codice_regione,
+            func.GROUP_CONCAT(concat, "<br>").label("tot_by_prov"),
+        )
+        .filter(
+            db.ItalyProvince.codice_provincia == db.ItalyProvinceCase.codice_provincia
+        )
+        .filter(db.ItalyProvinceCase.data == data)
+        .filter(db.ItalyProvince.codice_provincia < 200)
+        .group_by(db.ItalyProvince.codice_regione)
+    ).subquery()
+
+    columns = ["totale_positivi", "dimessi_guariti", "deceduti"]
+
+    select_columns = set(columns + [value])
+
+    query = (
+        session.query(
+            db.ItalyRegion.codice_regione,
+            db.ItalyRegion.denominazione_regione,
+            *[db.ItalyRegionCase.__table__.columns[col] for col in select_columns],
+            sub_query.c.tot_by_prov,
+        )
+        .filter(db.ItalyRegion.codice_regione == sub_query.c.codice_regione)
+        .filter(db.ItalyRegionCase.data == data)
+        .filter(db.ItalyRegionCase.codice_regione == db.ItalyRegion.codice_regione)
+    )
+    region_day_df = pd.DataFrame(query)
+
     log.debug(f"Generating map plot for {data}..")
     # filter data for the given date
-    region_day_df = region_df.loc[region_df["data"].dt.date == data, :]
-    province_day_df = province_df.loc[province_df["data"].dt.date == data, :]
-    aggr_province = aggregate_province_per_region(province_day_df)
+    # region_day_df = region_df.loc[region_df["data"].dt.date == data, :]
+    # province_day_df = province_df.loc[province_df["data"].dt.date == data, :]
+    # aggr_province = aggregate_province_per_region(province_day_df)
 
-    region_day_df = region_day_df.merge(aggr_province, on="codice_regione")
+    # region_day_df = region_day_df.merge(aggr_province, on="codice_regione")
 
     cp = go.Choropleth(
         geojson=map_data_region,
@@ -86,7 +127,7 @@ def generate_map_region(value: str, data: Optional[dt.date] = None) -> go.Figure
         hovertemplate=(
             "<b>%{text}</b><br><br>" + value + "=%{z}<br>"
             "totale positivi=%{customdata[1]}<br>"
-            "dimessi_guariti=%{customdata[2]}<br>"
+            "dimessi guariti=%{customdata[2]}<br>"
             "deceduti=%{customdata[3]}<br><br>"
             "<b>Totale per provincie</b>:<br>"
             "%{customdata[0]}"
