@@ -12,6 +12,7 @@ from urllib.error import HTTPError
 from dateutil.parser import parse, ParserError
 
 from sqlalchemy.orm import Session
+from flask_sqlalchemy import SQLAlchemy
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -21,7 +22,9 @@ log = logging.getLogger(__name__)
 
 # engine = create_engine(conn)
 
-Base = declarative_base()
+# Base = declarative_base()
+db = SQLAlchemy()
+Base = db.Model
 
 
 class ItalyRegion(Base):

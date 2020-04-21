@@ -7,10 +7,13 @@ import datetime as dt
 from typing import List, Optional
 import os
 import dash
+from flask import current_app
+from sqlalchemy import func
 
 import logging
 
 from . import data  # import get_italy_map_region, get_db_region_data
+from . import db
 
 log = logging.getLogger(__name__)
 
@@ -131,18 +134,34 @@ def generate_bar_plot_overall(
     Returns:
         [type] -- figure
     """
-    # df = get_time_data_db(columns, region=region)
-    df1 = region_df[columns + ["data", "denominazione_regione"]]
-    if region != "Italia":
-        df1 = df1.query("denominazione_regione==@region")
-    else:
-        df1 = df1.groupby(["data"], as_index=False).sum()
 
+    if region != "Italia":
+        # df1 = df1.query("denominazione_regione==@region")
+        query = (
+            db.db.session.query(
+                db.ItalyRegion.codice_regione,
+                db.ItalyRegion.denominazione_regione,
+                db.ItalyRegionCase.data,
+                *[db.ItalyRegionCase.__table__.columns[col] for col in columns],
+            )
+            .filter(db.ItalyRegionCase.codice_regione == db.ItalyRegion.codice_regione)
+            .filter(db.ItalyRegion.denominazione_regione == region)
+        )
+        df1 = pd.DataFrame(query)
+    else:
+        # df1 = df1.groupby(["data"], as_index=False).sum()
+        query = db.db.session.query(
+            db.ItalyRegionCase.data,
+            *[
+                func.sum(db.ItalyRegionCase.__table__.columns[col]).label(col)
+                for col in columns
+            ],
+        ).group_by(db.ItalyRegionCase.data)
+        df1 = pd.DataFrame(query)
+
+    x = df1["data"]
     return go.Figure(
-        data=[
-            go.Bar(name=col.replace("_", " "), x=df1["data"], y=df1[col])
-            for col in columns
-        ],
+        data=[go.Bar(name=col.replace("_", " "), x=x, y=df1[col]) for col in columns],
         layout=go.Layout(
             plot_bgcolor="white",
             barmode="stack",

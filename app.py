@@ -12,6 +12,7 @@ import pandas as pd
 
 from covid.callbacks import set_callbacks
 from covid.layout import set_layout
+from covid import db
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -19,6 +20,11 @@ set_layout(app)
 set_callbacks(app)
 
 application = app.server
+application.config[
+    "SQLALCHEMY_DATABASE_URI"
+] = "mysql://root:superset@127.0.0.1:3306/covid"
+application.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db.db.init_app(application)
 
 
 if __name__ == "__main__":
