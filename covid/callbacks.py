@@ -26,28 +26,28 @@ province_df: pd.DataFrame = data.get_db_province_data(conn)
 # historical_df = get_time_data()
 
 
-def aggregate_province_per_region(df: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate the province total cases by region, and set a string for the map hover
-    
-    Arguments:
-        df {pd.DataFrame} -- Province dataframe
-    
-    Returns:
-        pd.DataFrame -- Aggregated dataframe (rows=regions, columns=[codice_regione, tot_by_prov])
-    """
+# def aggregate_province_per_region(df: pd.DataFrame) -> pd.DataFrame:
+#     """Aggregate the province total cases by region, and set a string for the map hover
 
-    def aggregate(dfi):
-        tot = dfi["denominazione_provincia"].str.cat(
-            dfi["sigla_provincia"].str.cat(dfi["totale_casi"].astype(str), sep=": "),
-            sep=" ",
-        )
-        return "<br>".join(tot)
+#     Arguments:
+#         df {pd.DataFrame} -- Province dataframe
 
-    return (
-        (df.groupby("codice_regione").apply(aggregate))
-        .reset_index()
-        .rename(columns={0: "tot_by_prov"})
-    )
+#     Returns:
+#         pd.DataFrame -- Aggregated dataframe (rows=regions, columns=[codice_regione, tot_by_prov])
+#     """
+
+#     def aggregate(dfi):
+#         tot = dfi["denominazione_provincia"].str.cat(
+#             dfi["sigla_provincia"].str.cat(dfi["totale_casi"].astype(str), sep=": "),
+#             sep=" ",
+#         )
+#         return "<br>".join(tot)
+
+#     return (
+#         (df.groupby("codice_regione").apply(aggregate))
+#         .reset_index()
+#         .rename(columns={0: "tot_by_prov"})
+#     )
 
 
 def generate_map_region(value: str, data: Optional[dt.date] = None) -> go.Figure:
@@ -236,11 +236,30 @@ def update_xaxis(fig: go.Figure, relayout) -> go.Figure:
 
 
 def generate_bar_plot_selected(region="Italia", value="totale_casi"):
-    df1 = region_df[["data", "denominazione_regione", value]]
+
+    # import pdb; pdb.set_trace()
+    # df1 = region_df[["data", "denominazione_regione", value]]
     if region == "Italia":
-        df1 = df1.groupby(["data"], as_index=False).sum()
+        # df1 = df1.groupby(["data"], as_index=False).sum()
+        query = (
+            db.db.session.query(
+                db.ItalyRegionCase.data,
+                func.sum(db.ItalyRegionCase.__table__.columns[value]).label(value),
+            )
+            .filter(db.ItalyRegion.codice_regione == db.ItalyRegionCase.codice_regione)
+            .group_by(db.ItalyRegionCase.data)
+        )
     else:
-        df1 = df1.query("denominazione_regione==@region")
+        # df1 = df1.query("denominazione_regione==@region")
+        query = (
+            db.db.session.query(
+                db.ItalyRegionCase.data, db.ItalyRegionCase.__table__.columns[value]
+            )
+            .filter(db.ItalyRegion.codice_regione == db.ItalyRegionCase.codice_regione)
+            .filter(db.ItalyRegion.denominazione_regione == region)
+        )
+
+    df1 = pd.DataFrame(query)
 
     return go.Figure(
         data=[
