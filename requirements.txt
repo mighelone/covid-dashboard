@@ -9,3 +9,4 @@ sqlalchemy
 orjson
 simplification==0.5.1
 geojson==2.5.0
+flask_sqlalchemy==2.4.1

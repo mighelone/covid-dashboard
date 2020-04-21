@@ -7,44 +7,18 @@ import datetime as dt
 from typing import List, Optional
 import os
 import dash
+from flask import current_app
+from sqlalchemy import func
 
 import logging
 
 from . import data  # import get_italy_map_region, get_db_region_data
+from . import db
 
 log = logging.getLogger(__name__)
 
-# cache data
-conn = os.environ.get("DB_CONN", "sqlite:///covid.db")
 log.info("Loading data...")
 map_data_region = data.get_italy_map_region()
-region_df: pd.DataFrame = data.get_db_region_data(conn)
-province_df: pd.DataFrame = data.get_db_province_data(conn)
-# historical_df = get_time_data()
-
-
-def aggregate_province_per_region(df: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate the province total cases by region, and set a string for the map hover
-    
-    Arguments:
-        df {pd.DataFrame} -- Province dataframe
-    
-    Returns:
-        pd.DataFrame -- Aggregated dataframe (rows=regions, columns=[codice_regione, tot_by_prov])
-    """
-
-    def aggregate(dfi):
-        tot = dfi["denominazione_provincia"].str.cat(
-            dfi["sigla_provincia"].str.cat(dfi["totale_casi"].astype(str), sep=": "),
-            sep=" ",
-        )
-        return "<br>".join(tot)
-
-    return (
-        (df.groupby("codice_regione").apply(aggregate))
-        .reset_index()
-        .rename(columns={0: "tot_by_prov"})
-    )
 
 
 def generate_map_region(value: str, data: Optional[dt.date] = None) -> go.Figure:
@@ -59,19 +33,61 @@ def generate_map_region(value: str, data: Optional[dt.date] = None) -> go.Figure
     Returns:
         go.Figure -- [description]
     """
-    max_data = region_df.data.dt.date.max()
+    value = "deceduti" if value == "variazione_deceduti" else value
+    session = db.db.session
+    max_data = session.query(func.max(db.ItalyRegionCase.data)).first()[0]
+    # max_data = region_df.data.dt.date.max()
     data = (
         min(dt.datetime.strptime(data, "%Y-%m-%d").date(), max_data)
         if isinstance(data, str)
         else max_data
     )
+
+    concat = func.CONCAT(
+        db.ItalyProvince.denominazione_provincia,
+        " (",
+        db.ItalyProvince.sigla_provincia,
+        "): ",
+        db.ItalyProvinceCase.totale_casi,
+    )  # .label('provincia'),
+
+    sub_query = (
+        session.query(
+            db.ItalyProvince.codice_regione,
+            func.GROUP_CONCAT(concat, "<br>").label("tot_by_prov"),
+        )
+        .filter(
+            db.ItalyProvince.codice_provincia == db.ItalyProvinceCase.codice_provincia
+        )
+        .filter(db.ItalyProvinceCase.data == data)
+        .filter(db.ItalyProvince.codice_provincia < 200)
+        .group_by(db.ItalyProvince.codice_regione)
+    ).subquery()
+
+    columns = ["totale_positivi", "dimessi_guariti", "deceduti"]
+
+    select_columns = set(columns + [value])
+
+    query = (
+        session.query(
+            db.ItalyRegion.codice_regione,
+            db.ItalyRegion.denominazione_regione,
+            *[db.ItalyRegionCase.__table__.columns[col] for col in select_columns],
+            sub_query.c.tot_by_prov,
+        )
+        .filter(db.ItalyRegion.codice_regione == sub_query.c.codice_regione)
+        .filter(db.ItalyRegionCase.data == data)
+        .filter(db.ItalyRegionCase.codice_regione == db.ItalyRegion.codice_regione)
+    )
+    region_day_df = pd.DataFrame(query)
+
     log.debug(f"Generating map plot for {data}..")
     # filter data for the given date
-    region_day_df = region_df.loc[region_df["data"].dt.date == data, :]
-    province_day_df = province_df.loc[province_df["data"].dt.date == data, :]
-    aggr_province = aggregate_province_per_region(province_day_df)
+    # region_day_df = region_df.loc[region_df["data"].dt.date == data, :]
+    # province_day_df = province_df.loc[province_df["data"].dt.date == data, :]
+    # aggr_province = aggregate_province_per_region(province_day_df)
 
-    region_day_df = region_day_df.merge(aggr_province, on="codice_regione")
+    # region_day_df = region_day_df.merge(aggr_province, on="codice_regione")
 
     cp = go.Choropleth(
         geojson=map_data_region,
@@ -83,7 +99,7 @@ def generate_map_region(value: str, data: Optional[dt.date] = None) -> go.Figure
         hovertemplate=(
             "<b>%{text}</b><br><br>" + value + "=%{z}<br>"
             "totale positivi=%{customdata[1]}<br>"
-            "dimessi_guariti=%{customdata[2]}<br>"
+            "dimessi guariti=%{customdata[2]}<br>"
             "deceduti=%{customdata[3]}<br><br>"
             "<b>Totale per provincie</b>:<br>"
             "%{customdata[0]}"
@@ -131,18 +147,34 @@ def generate_bar_plot_overall(
     Returns:
         [type] -- figure
     """
-    # df = get_time_data_db(columns, region=region)
-    df1 = region_df[columns + ["data", "denominazione_regione"]]
-    if region != "Italia":
-        df1 = df1.query("denominazione_regione==@region")
-    else:
-        df1 = df1.groupby(["data"], as_index=False).sum()
 
+    if region != "Italia":
+        # df1 = df1.query("denominazione_regione==@region")
+        query = (
+            db.db.session.query(
+                db.ItalyRegion.codice_regione,
+                db.ItalyRegion.denominazione_regione,
+                db.ItalyRegionCase.data,
+                *[db.ItalyRegionCase.__table__.columns[col] for col in columns],
+            )
+            .filter(db.ItalyRegionCase.codice_regione == db.ItalyRegion.codice_regione)
+            .filter(db.ItalyRegion.denominazione_regione == region)
+        )
+        df1 = pd.DataFrame(query)
+    else:
+        # df1 = df1.groupby(["data"], as_index=False).sum()
+        query = db.db.session.query(
+            db.ItalyRegionCase.data,
+            *[
+                func.sum(db.ItalyRegionCase.__table__.columns[col]).label(col)
+                for col in columns
+            ],
+        ).group_by(db.ItalyRegionCase.data)
+        df1 = pd.DataFrame(query)
+
+    x = df1["data"]
     return go.Figure(
-        data=[
-            go.Bar(name=col.replace("_", " "), x=df1["data"], y=df1[col])
-            for col in columns
-        ],
+        data=[go.Bar(name=col.replace("_", " "), x=x, y=df1[col]) for col in columns],
         layout=go.Layout(
             plot_bgcolor="white",
             barmode="stack",
@@ -175,17 +207,42 @@ def update_xaxis(fig: go.Figure, relayout) -> go.Figure:
     return fig
 
 
-def generate_bar_plot_selected(region="Italia", value="totale_casi"):
-    df1 = region_df[["data", "denominazione_regione", value]]
+def generate_bar_plot_selected(region="Italia", value: str = "totale_casi"):
+    value_query, do_increment = (
+        ("deceduti", True) if value == "variazione_deceduti" else (value, False)
+    )
+
     if region == "Italia":
-        df1 = df1.groupby(["data"], as_index=False).sum()
+        query = (
+            db.db.session.query(
+                db.ItalyRegionCase.data,
+                func.sum(db.ItalyRegionCase.__table__.columns[value_query]).label(
+                    value_query
+                ),
+            )
+            .filter(db.ItalyRegion.codice_regione == db.ItalyRegionCase.codice_regione)
+            .group_by(db.ItalyRegionCase.data)
+        )
     else:
-        df1 = df1.query("denominazione_regione==@region")
+        query = (
+            db.db.session.query(
+                db.ItalyRegionCase.data,
+                db.ItalyRegionCase.__table__.columns[value_query],
+            )
+            .filter(db.ItalyRegion.codice_regione == db.ItalyRegionCase.codice_regione)
+            .filter(db.ItalyRegion.denominazione_regione == region)
+        )
+
+    df1 = pd.DataFrame(query)
+
+    if do_increment:
+        # import pdb; pdb.set_trace()
+        df1 = df1.assign(**{value: df1[value_query].diff()})
 
     return go.Figure(
         data=[
             go.Bar(
-                name=value,
+                name=value.replace("_", " "),
                 x=df1["data"],
                 y=df1[value],
                 # line=go.scatter.Line(width=3)
