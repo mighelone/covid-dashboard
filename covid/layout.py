@@ -22,6 +22,8 @@ map_labels = [
         "deceduti",
         "totale_casi",
         "tamponi",
+        # new values
+        "variazione_deceduti",
     ]
 ]
 
