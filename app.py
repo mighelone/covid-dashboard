@@ -13,7 +13,7 @@ import os
 import logging
 
 from covid.callbacks import set_callbacks
-from covid.layout import set_layout
+from covid.layout import get_layout
 from covid.db import db
 
 
@@ -30,7 +30,7 @@ application.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
 application.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(application)
 
-app.layout = set_layout
+app.layout = get_layout
 set_callbacks(app)
 
 if __name__ == "__main__":
