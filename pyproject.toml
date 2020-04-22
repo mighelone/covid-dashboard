@@ -41,3 +41,4 @@ geojson = "2.5.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.4"
+rope = "0.16.0"

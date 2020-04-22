@@ -38,6 +38,7 @@ DEFAULT = "variazione_totale_positivi"
 def get_layout() -> dbc.Container:
     return dbc.Container(
         [
+            dcc.Location("url"),
             get_navbar(),
             get_help_modal(),
             get_control_row(map_labels=MAP_LABELS, default_value=DEFAULT),
