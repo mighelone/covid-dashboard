@@ -48,9 +48,11 @@ def set_callbacks(app: Dash):
         [
             Input(component_id="dropdown-menu", component_property="value"),
             Input(component_id="select-date", component_property="date"),
+            Input(component_id="url", component_property="pathname"),
         ],
     )
-    def update_plot(value, date):
+    def update_plot(value: str, date: str, pathname: str):
+        log.info(f"Pathname={pathname}")
         return generate_map_region(value, date)  # , generate_plot(value)
 
     @app.callback(
@@ -100,6 +102,16 @@ def set_callbacks(app: Dash):
         [State("modal-help", "is_open")],
     )
     def toggle_modal(n1: int, n2: int, is_open: bool):
+        """This callback is used to open/close the modal help form
+        
+        Arguments:
+            n1 {int} -- help-button clicks
+            n2 {int} -- close-help button clicks
+            is_open {bool} -- state 
+        
+        Returns:
+            [type] -- [description]
+        """
         if n1 or n2:
             return not is_open
         return is_open
