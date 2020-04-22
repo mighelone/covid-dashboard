@@ -99,6 +99,7 @@ def get_db_session(conn: Optional[str] = None):
         "DB_CONN", "mysql://root:superset@127.0.0.1:3306/covid"
     )
     engine = create_engine(conn)
+    log.info(f"Connected to {engine}")
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     return Session()

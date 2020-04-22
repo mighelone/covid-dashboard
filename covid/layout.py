@@ -56,7 +56,7 @@ map_regions = [
 DEFAULT = "variazione_totale_positivi"
 
 
-def set_layout(app: Dash):
+def get_layout() -> dbc.Container:
 
     dropdown = dbc.DropdownMenu(
         children=[
@@ -180,7 +180,7 @@ def set_layout(app: Dash):
         sticky="top",
         expand=True,
     )
-    app.layout = dbc.Container(
+    return dbc.Container(
         [
             navbar,
             help_modal,
