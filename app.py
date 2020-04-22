@@ -22,8 +22,6 @@ log = logging.getLogger(__name__)
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-set_layout(app)
-set_callbacks(app)
 
 application = app.server
 application.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
@@ -32,6 +30,8 @@ application.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
 application.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(application)
 
+app.layout = set_layout
+set_callbacks(app)
 
 if __name__ == "__main__":
     app.run_server(debug=True)
