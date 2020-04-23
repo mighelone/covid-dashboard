@@ -79,8 +79,17 @@ def set_callbacks(app: Dash):
             Input(component_id="url", component_property="pathname"),
         ],
     )
-    def update_plot(value: str, date: str, pathname: str):
-        log.info(f"Pathname={pathname}")
+    def update_plot(value: str, date: str, pathname: str) -> go.Figure:
+        """Update the map plot
+
+        Arguments:
+            date {str} -- Date of the plot
+            pathname {str} -- Dashboard pathname for showing province or regioni
+
+        Returns:
+            go.Figure -- New generated figure
+        """
+        log.debug(f"Pathname={pathname}")
         if pathname == "/province":
             return generate_map_province("totale_casi", date)
         else:

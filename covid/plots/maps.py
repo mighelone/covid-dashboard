@@ -1,12 +1,21 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 import datetime as dt
 from sqlalchemy import func
+from sqlalchemy.orm import Session
 import logging
 import plotly.graph_objects as go
 import pandas as pd
 from .. import db
 from .. import data
 
+COLORSCALE = "Pinkyl"
+
+GEO_LAYOUT = go.layout.Geo(
+    fitbounds="locations", visible=False, projection={"type": "mercator"}
+)
+HEIGHT = 800
+
+DataType = Optional[Union[dt.datetime, str]]
 
 log = logging.getLogger(__name__)
 
@@ -22,7 +31,7 @@ concat = func.CONCAT(
 )  # .label('provincia'),
 
 
-def generate_map_region(value: str, data: Optional[dt.date] = None) -> go.Figure:
+def generate_map_region(value: str, data: DataType = None) -> go.Figure:
     """Generate the map region for the given data showing the given value
     
     Arguments:
@@ -34,8 +43,135 @@ def generate_map_region(value: str, data: Optional[dt.date] = None) -> go.Figure
     Returns:
         go.Figure -- [description]
     """
+
+    region_day_df = get_region_data(value, data)
+    log.debug(f"Generating map plot for {data}..")
+    cp = go.Choropleth(
+        geojson=map_data_region,
+        locations=region_day_df["codice_regione"],
+        z=region_day_df[value],
+        featureidkey="properties.reg_istat_code_num",
+        colorscale=COLORSCALE,
+        text=region_day_df["denominazione_regione"],
+        hovertemplate=(
+            "<b>%{text}</b><br><br>" + value + "=%{z}<br>"
+            "totale positivi=%{customdata[1]}<br>"
+            "dimessi guariti=%{customdata[2]}<br>"
+            "deceduti=%{customdata[3]}<br><br>"
+            "<b>Totale per provincie</b><br>"
+            "%{customdata[0]}"
+            "<extra></extra>"
+        ),
+        customdata=region_day_df[
+            ["tot_by_prov", "totale_positivi", "dimessi_guariti", "deceduti",]
+        ],
+    )
+
+    fig = go.Figure(
+        data=cp,
+        layout=go.Layout(
+            geo=GEO_LAYOUT,
+            title=go.layout.Title(
+                text=f"Distribuzione {value.replace('_', ' ')} {data:%Y-%m-%d}"
+            ),
+            height=HEIGHT,
+        ),
+    )
+    return fig
+
+
+def generate_map_province(value: str, data: DataType = None) -> go.Figure:
+    """Generate the map region for the given data showing the given value
+    
+    Arguments:
+        value {str} -- Value to visualize
+    
+    Keyword Arguments:
+        data {Optional[dt.date]} -- Date to visualize (default: {None})
+    
+    Returns:
+        go.Figure -- [description]
+    """
+    df = get_province_data(value, data)
+    log.debug(f"Generating map plot for {data}..")
+    cp = go.Choropleth(
+        geojson=map_data_province,
+        z=df[value],
+        locations=df["codice_provincia"],
+        featureidkey="properties.prov_istat_code_num",
+        colorscale=COLORSCALE,
+        text=df["provincia"],
+        # hovertemplate=(
+        #     "<b>%{text}</b><br><br>" + value + "=%{z}<br>"
+        #     "totale positivi=%{customdata[1]}<br>"
+        #     "dimessi guariti=%{customdata[2]}<br>"
+        #     "deceduti=%{customdata[3]}<br><br>"
+        #     "<b>Totale per provincie</b>:<br>"
+        #     "%{customdata[0]}"
+        #     "<extra></extra>"
+        # ),
+        customdata=df[
+            ["denominazione_regione", "denominazione_provincia", "codice_provincia"]
+        ],
+    )
+
+    fig = go.Figure(
+        data=cp,
+        layout=go.Layout(
+            geo=GEO_LAYOUT,
+            title=go.layout.Title(
+                text=f"Distribuzione {value.replace('_', ' ')} {data:%Y-%m-%d}"
+            ),
+            height=HEIGHT,
+        ),
+    )
+    return fig
+
+
+def get_province_data(
+    value: str, data: DataType, session: Optional[Session] = None
+) -> pd.DataFrame:
+    """Query data for province
+
+    Arguments:
+        value {str} -- Value selected
+        data {Optional[Union[dt.datetime, str]]} -- Date
+
+    Returns:
+        pd.DataFrame -- Result dataframe
+    """
+    session = session or db.db.session
+    max_data = session.query(func.max(db.ItalyRegionCase.data)).first()[0]
+    data = (
+        min(dt.datetime.strptime(data, "%Y-%m-%d").date(), max_data)
+        if isinstance(data, str)
+        else max_data
+    )
+
+    query = (
+        session.query(
+            db.ItalyProvince.codice_provincia,
+            db.ItalyProvince.denominazione_provincia,
+            concat.label("provincia"),
+            db.ItalyRegion.denominazione_regione,
+            db.ItalyProvinceCase.__table__.c[value],
+            db.ItalyProvinceCase.note_it,
+            db.ItalyProvinceCase.note_en,
+        )
+        .filter(
+            db.ItalyProvince.codice_provincia == db.ItalyProvinceCase.codice_provincia
+        )
+        .filter(db.ItalyProvince.codice_regione == db.ItalyRegion.codice_regione)
+        .filter(db.ItalyProvinceCase.data == data)
+    )
+    return pd.DataFrame(query)
+
+
+def get_region_data(
+    value: str, data: DataType, session: Optional[Session] = None
+) -> pd.DataFrame:
     value = "deceduti" if value == "variazione_deceduti" else value
-    session = db.db.session
+    session = session or db.db.session
     max_data = session.query(func.max(db.ItalyRegionCase.data)).first()[0]
     # max_data = region_df.data.dt.date.max()
     data = (
@@ -72,119 +208,4 @@ def generate_map_region(value: str, data: Optional[dt.date] = None) -> go.Figure
         .filter(db.ItalyRegionCase.data == data)
         .filter(db.ItalyRegionCase.codice_regione == db.ItalyRegion.codice_regione)
     )
-    region_day_df = pd.DataFrame(query)
-
-    log.debug(f"Generating map plot for {data}..")
-
-    cp = go.Choropleth(
-        geojson=map_data_region,
-        locations=region_day_df["codice_regione"],
-        z=region_day_df[value],
-        featureidkey="properties.reg_istat_code_num",
-        colorscale="Pinkyl",
-        text=region_day_df["denominazione_regione"],
-        hovertemplate=(
-            "<b>%{text}</b><br><br>" + value + "=%{z}<br>"
-            "totale positivi=%{customdata[1]}<br>"
-            "dimessi guariti=%{customdata[2]}<br>"
-            "deceduti=%{customdata[3]}<br><br>"
-            "<b>Totale per provincie</b>:<br>"
-            "%{customdata[0]}"
-            "<extra></extra>"
-        ),
-        customdata=region_day_df[
-            ["tot_by_prov", "totale_positivi", "dimessi_guariti", "deceduti",]
-        ],
-    )
-
-    fig = go.Figure(
-        data=cp,
-        layout=go.Layout(
-            geo=go.layout.Geo(
-                fitbounds="locations", visible=False, projection={"type": "mercator"}
-            ),
-            title=go.layout.Title(
-                text=f"Distribuzione {value.replace('_', ' ')} {data:%Y-%m-%d}"
-            ),
-            height=800,
-        ),
-    )
-    return fig
-
-
-def generate_map_province(value: str, data: Optional[dt.date] = None) -> go.Figure:
-    """Generate the map region for the given data showing the given value
-    
-    Arguments:
-        value {str} -- Value to visualize
-    
-    Keyword Arguments:
-        data {Optional[dt.date]} -- Date to visualize (default: {None})
-    
-    Returns:
-        go.Figure -- [description]
-    """
-    session = db.db.session
-    max_data = session.query(func.max(db.ItalyRegionCase.data)).first()[0]
-    # max_data = region_df.data.dt.date.max()
-    data = (
-        min(dt.datetime.strptime(data, "%Y-%m-%d").date(), max_data)
-        if isinstance(data, str)
-        else max_data
-    )
-
-    query = (
-        session.query(
-            db.ItalyProvince.codice_provincia,
-            db.ItalyProvince.denominazione_provincia,
-            concat.label("provincia"),
-            db.ItalyRegion.denominazione_regione,
-            db.ItalyProvinceCase.__table__.c[value],
-            # db.ItalyProvinceCase.totale_casi,
-            db.ItalyProvinceCase.note_it,
-            db.ItalyProvinceCase.note_en,
-        )
-        .filter(
-            db.ItalyProvince.codice_provincia == db.ItalyProvinceCase.codice_provincia
-        )
-        .filter(db.ItalyProvince.codice_regione == db.ItalyRegion.codice_regione)
-        .filter(db.ItalyProvinceCase.data == data)
-    )
-    df = pd.DataFrame(query)
-
-    log.debug(f"Generating map plot for {data}..")
-
-    cp = go.Choropleth(
-        geojson=map_data_province,
-        z=df[value],
-        locations=df["codice_provincia"],
-        featureidkey="properties.prov_istat_code_num",
-        colorscale="Pinkyl",
-        text=df["provincia"],
-        # hovertemplate=(
-        #     "<b>%{text}</b><br><br>" + value + "=%{z}<br>"
-        #     "totale positivi=%{customdata[1]}<br>"
-        #     "dimessi guariti=%{customdata[2]}<br>"
-        #     "deceduti=%{customdata[3]}<br><br>"
-        #     "<b>Totale per provincie</b>:<br>"
-        #     "%{customdata[0]}"
-        #     "<extra></extra>"
-        # ),
-        customdata=df[
-            ["denominazione_regione", "denominazione_provincia", "codice_provincia"]
-        ],
-    )
-
-    fig = go.Figure(
-        data=cp,
-        layout=go.Layout(
-            geo=go.layout.Geo(
-                fitbounds="locations", visible=False, projection={"type": "mercator"}
-            ),
-            title=go.layout.Title(
-                text=f"Distribuzione {value.replace('_', ' ')} {data:%Y-%m-%d}"
-            ),
-            height=800,
-        ),
-    )
-    return fig
+    return pd.DataFrame(query)
