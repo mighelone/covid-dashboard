@@ -75,14 +75,17 @@ def get_db_province_data(conn: str) -> pd.DataFrame:
     return df
 
 
-def get_italy_map_region() -> Dict[str, Any]:
+def get_italy_map(selection: str) -> Dict[str, Any]:
     """Read the geojson regional data for Italy
     
+    Arguments:
+        selection {str} -- Select regioni/province
+    
     Returns:
-        [type] -- [description]
+        Dict[str, Any] -- Geojson
     """
     # path = data_path / "../data/limits_IT_regions.geojson"
-    path = data_path / "../data/italy-reduced.geojson"
+    path = data_path / f"../data/italy-reduced-{selection}.geojson"
 
     with open(path, "r") as f:
         data = json.load(f)

@@ -13,13 +13,16 @@ import logging
 
 from . import data  # import get_italy_map_region, get_db_region_data
 from . import db
-from .plots.maps import generate_map_region
-from .plots.bar import generate_bar_plot_overall, generate_bar_plot_selected
+from .plots.maps import generate_map_region, generate_map_province
+from .plots.bar import (
+    generate_bar_plot_overall,
+    generate_bar_plot_selected,
+    generate_bar_plot_provicie,
+)
 
 log = logging.getLogger(__name__)
 
 log.info("Loading data...")
-map_data_region = data.get_italy_map_region()
 
 
 def update_xaxis(fig: go.Figure, relayout) -> go.Figure:
@@ -53,7 +56,10 @@ def set_callbacks(app: Dash):
     )
     def update_plot(value: str, date: str, pathname: str):
         log.info(f"Pathname={pathname}")
-        return generate_map_region(value, date)  # , generate_plot(value)
+        if pathname == "/province":
+            return generate_map_province("totale_casi", date)
+        else:
+            return generate_map_region(value, date)  # , generate_plot(value)
 
     @app.callback(
         Output(component_id="bar-plot-overall", component_property="figure"),
@@ -62,11 +68,28 @@ def set_callbacks(app: Dash):
             Input(component_id="bar-plot-selected", component_property="relayoutData"),
             Input(component_id="reset-button", component_property="n_clicks"),
         ],
+        [State("url", "pathname")],
     )
-    def update_bar_plot_overall(hoverData, relayout, n_clicks):
+    def update_bar_plot_overall(hoverData, relayout, n_clicks: int, pathname: str):
         ctx = dash.callback_context
         if ctx.triggered[0]["prop_id"] == "reset-button.n_clicks":
             region = "Italia"
+        elif pathname == "/province":
+            # import pdb; pdb.set_trace()
+            region = (
+                (
+                    db.db.session.query(db.ItalyRegion.denominazione_regione)
+                    .filter(
+                        db.ItalyRegion.codice_regione == db.ItalyProvince.codice_regione
+                    )
+                    .filter(
+                        db.ItalyProvince.denominazione_provincia
+                        == hoverData["points"][0]["customdata"][1]
+                    )
+                ).first()[0]
+                if hoverData
+                else "Italia"
+            )
         else:
             region = (
                 [v["text"] for v in hoverData["points"]][0] if hoverData else "Italia"
@@ -83,16 +106,27 @@ def set_callbacks(app: Dash):
             Input(component_id="bar-plot-overall", component_property="relayoutData"),
             Input(component_id="reset-button", component_property="n_clicks"),
         ],
+        [State("url", "pathname")],
     )
-    def update_bar_plot_selected(value: str, hoverData, relayout, n_clicks):
+    def update_bar_plot_selected(value: str, hoverData, relayout, n_clicks, pathname):
         ctx = dash.callback_context
         if ctx.triggered[0]["prop_id"] == "reset-button.n_clicks":
             region = "Italia"
+            fig = generate_bar_plot_selected(region=region, value=value)
+        elif pathname == "/province":
+            region = "Italia"
+            if hoverData:
+                provincia = hoverData["points"][0]["customdata"][1]
+                fig = generate_bar_plot_provicie(
+                    provincia=provincia, value="totale_casi"
+                )
+            else:
+                fig = generate_bar_plot_selected(region="Italia", value=value)
         else:
             region = (
                 [v["text"] for v in hoverData["points"]][0] if hoverData else "Italia"
             )
-        fig = generate_bar_plot_selected(region=region, value=value)
+            fig = generate_bar_plot_selected(region=region, value=value)
         fig = update_xaxis(fig, relayout)
         return fig
 
