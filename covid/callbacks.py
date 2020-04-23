@@ -24,6 +24,31 @@ log = logging.getLogger(__name__)
 
 log.info("Loading data...")
 
+MAP_LABELS_REGION = [
+    {"label": l.replace("_", " "), "value": l}
+    for l in [
+        "ricoverati_con_sintomi",
+        "terapia_intensiva",
+        "totale_ospedalizzati",
+        "isolamento_domiciliare",
+        "totale_positivi",
+        "variazione_totale_positivi",
+        "nuovi_positivi",
+        "dimessi_guariti",
+        "deceduti",
+        "totale_casi",
+        "tamponi",
+        # new values
+        "variazione_deceduti",
+    ]
+]
+DEFAULT_REGION = "variazione_totale_positivi"
+
+DEFAULT_PROVINCE = "totale_casi"
+MAP_LABELS_PROVINCE = [
+    {"label": DEFAULT_PROVINCE.replace("_", " "), "value": DEFAULT_PROVINCE}
+]
+
 
 def update_xaxis(fig: go.Figure, relayout) -> go.Figure:
     """Update fig xaxis with relayout
@@ -159,3 +184,13 @@ def set_callbacks(app: Dash):
             # Treat page 1 as the homepage / index
             return False, False
         return [pathname == "/regioni", pathname == "/province"]
+
+    @app.callback(
+        [Output("dropdown-menu", "options"), Output("dropdown-menu", "value")],
+        [Input("url", "pathname")],
+    )
+    def update_dropdown_menu(pathname: str):
+        if pathname == "/province":
+            return (MAP_LABELS_PROVINCE, DEFAULT_PROVINCE)
+        else:
+            return (MAP_LABELS_REGION, DEFAULT_REGION)

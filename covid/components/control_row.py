@@ -6,7 +6,7 @@ import dash_bootstrap_components as dbc
 import datetime as dt
 
 
-def get_control_row(map_labels: Dict[str, str], default_value: str):
+def get_control_row():
     return dbc.Row(
         [
             dbc.Col(
@@ -16,8 +16,8 @@ def get_control_row(map_labels: Dict[str, str], default_value: str):
                 # html.H6("Seleziona valore"),
                 dcc.Dropdown(
                     id="dropdown-menu",
-                    options=map_labels,
-                    value=default_value,
+                    # options=map_labels,
+                    # value=default_value,
                     # optionHeight='30px'
                     style={"height": "45px", "verticalAlign": "middle"},
                     # xl=4,
