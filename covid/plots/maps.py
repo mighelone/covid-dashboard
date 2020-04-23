@@ -43,7 +43,7 @@ def generate_map_region(value: str, data: DataType = None) -> go.Figure:
     Returns:
         go.Figure -- [description]
     """
-
+    data = parse_data(data)
     region_day_df = get_region_data(value, data)
     log.debug(f"Generating map plot for {data}..")
     cp = go.Choropleth(
@@ -92,6 +92,7 @@ def generate_map_province(value: str, data: DataType = None) -> go.Figure:
     Returns:
         go.Figure -- [description]
     """
+    data = parse_data(data)
     df = get_province_data(value, data)
     log.debug(f"Generating map plot for {data}..")
     cp = go.Choropleth(
@@ -168,17 +169,10 @@ def get_province_data(
 
 
 def get_region_data(
-    value: str, data: DataType, session: Optional[Session] = None
+    value: str, data: dt.datetime, session: Optional[Session] = None
 ) -> pd.DataFrame:
     value = "deceduti" if value == "variazione_deceduti" else value
     session = session or db.db.session
-    max_data = session.query(func.max(db.ItalyRegionCase.data)).first()[0]
-    # max_data = region_df.data.dt.date.max()
-    data = (
-        min(dt.datetime.strptime(data, "%Y-%m-%d").date(), max_data)
-        if isinstance(data, str)
-        else max_data
-    )
 
     sub_query = (
         session.query(
@@ -209,3 +203,25 @@ def get_region_data(
         .filter(db.ItalyRegionCase.codice_regione == db.ItalyRegion.codice_regione)
     )
     return pd.DataFrame(query)
+
+
+def parse_data(data: Optional[str], session=None) -> dt.datetime:
+    """Parse the data in string format
+
+    Arguments:
+        data {Optional[str]} -- Data
+
+    Keyword Arguments:
+        session {[type]} -- DB session (default: {None})
+
+    Returns:
+        dt.datetime -- Parsed data
+    """
+    session = session or db.db.session
+    max_data = session.query(func.max(db.ItalyRegionCase.data)).first()[0]
+    # max_data = region_df.data.dt.date.max()
+    return (
+        min(dt.datetime.strptime(data, "%Y-%m-%d").date(), max_data)
+        if isinstance(data, str)
+        else max_data
+    )
