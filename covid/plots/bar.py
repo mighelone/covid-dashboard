@@ -2,6 +2,7 @@ from typing import List, Optional
 from sqlalchemy import func
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.express as px
 from .. import db
 
 PLOT_OVERALL_COLUMNS = [
@@ -11,6 +12,32 @@ PLOT_OVERALL_COLUMNS = [
     "terapia_intensiva",
     "deceduti",
 ]
+
+update_menu = go.layout.Updatemenu(
+    type="buttons",
+    bgcolor="white",
+    x=0.25,
+    y=0.98,
+    active=-1,
+    direction="left",
+    buttons=[
+        go.layout.updatemenu.Button(
+            label="Attivi",
+            method="update",
+            args=[{"visible": [False, True, True, True, False]}],
+        ),
+        go.layout.updatemenu.Button(
+            label="Archiviati",
+            method="update",
+            args=[{"visible": [True, False, False, False, True]}],
+        ),
+        go.layout.updatemenu.Button(
+            label="Totale",
+            method="update",
+            args=[{"visible": [True, True, True, True, True]}],
+        ),
+    ],
+)
 
 
 def generate_bar_plot_overall(
@@ -28,7 +55,6 @@ def generate_bar_plot_overall(
     """
 
     if region != "Italia":
-        # df1 = df1.query("denominazione_regione==@region")
         query = (
             db.db.session.query(
                 db.ItalyRegion.codice_regione,
@@ -41,7 +67,6 @@ def generate_bar_plot_overall(
         )
         df1 = pd.DataFrame(query)
     else:
-        # df1 = df1.groupby(["data"], as_index=False).sum()
         query = db.db.session.query(
             db.ItalyRegionCase.data,
             *[
@@ -52,15 +77,20 @@ def generate_bar_plot_overall(
         df1 = pd.DataFrame(query)
 
     x = df1["data"]
+
     return go.Figure(
-        data=[go.Bar(name=col.replace("_", " "), x=x, y=df1[col]) for col in columns],
+        data=[
+            go.Bar(name=col.replace("_", " "), x=x, y=df1[col], marker_color=color)
+            for col, color in zip(columns, px.colors.qualitative.Plotly)
+        ],
         layout=go.Layout(
             plot_bgcolor="white",
             barmode="stack",
             legend=dict(
-                x=0.02, y=0.98,  # title=f"<b> {region} </b>", traceorder="normal",
+                x=0.02, y=0.78,  # title=f"<b> {region} </b>", traceorder="normal",
             ),
             title=f"{region}: andamento casi",
+            updatemenus=[update_menu],
             height=400,
         ),
     )
