@@ -12,13 +12,13 @@
 - [x] Rename IDs/ functions to be more consistent
 - [x] Automatic update of the data
 - [x] Use a less detailed jsonmap for Italy
-- [ ] Use store to save data
 - [x] Restructure DB
   - [x] Add provinces
 - [ ] Unit tests
   - [x] test db calls
   - [ ] Mock data download
 - [ ] Add a click action to modify date when click the bar plot
+- [x] In Andamento casi add a button to show only active cases
 - [x] Check performances directly querying data from DB (no update required)
 - [ ] Extra variables
   - [x] Add `variazione_decessi` as new variable
