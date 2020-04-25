@@ -22,13 +22,12 @@ log = logging.getLogger(__name__)
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-
+# Flask configuration
 application = app.server
-application.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-    "DB_CONN", "mysql://root:superset@127.0.0.1:3306/covid",
-)
-application.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+environment_configuration = os.environ.get("CONFIGURATION_SETUP", "CONFIGURATION_SETUP")
+application.config.from_object(environment_configuration)
 db.init_app(application)
+
 
 app.layout = get_layout
 set_callbacks(app)
