@@ -177,8 +177,11 @@ def get_region_data(
     sub_query = (
         session.query(
             db.ItalyProvince.codice_regione,
-            # func.GROUP_CONCAT(concat, "<br>").label("tot_by_prov"),
-            func.string_agg(concat, "<br>").label("tot_by_prov"),
+            (
+                func.string_agg(concat, "<br>").label("tot_by_prov")
+                if session.bind.dialect.name == "postgresql"
+                else func.GROUP_CONCAT(concat, "<br>").label("tot_by_prov")
+            ),
         )
         .filter(
             db.ItalyProvince.codice_provincia == db.ItalyProvinceCase.codice_provincia
