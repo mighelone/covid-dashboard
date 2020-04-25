@@ -24,7 +24,7 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 # Flask configuration
 application = app.server
-environment_configuration = os.environ["CONFIGURATION_SETUP"]
+environment_configuration = os.environ.get("CONFIGURATION_SETUP", "CONFIGURATION_SETUP")
 application.config.from_object(environment_configuration)
 db.init_app(application)
 
