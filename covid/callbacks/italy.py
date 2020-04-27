@@ -105,33 +105,22 @@ def set_callbacks_italy(app: Dash):
         [State(component_id="dropdown-visualizzazione", component_property="value"),],
     )
     def update_bar_plot_overall(
-        hoverData, relayout, n_clicks: int, visualizzazione: str
+        click_data, relayout, n_clicks: int, visualizzazione: str
     ):
         ctx = dash.callback_context
-        if ctx.triggered[0]["prop_id"] == "reset-button.n_clicks":
+        if ctx.triggered[0]["prop_id"] == "reset-button.n_clicks" or click_data is None:
             region = "Italia"
-        elif visualizzazione == "province":
-            region = (
-                (
-                    db.db.session.query(db.ItalyRegion.denominazione_regione)
-                    .filter(
-                        db.ItalyRegion.codice_regione == db.ItalyProvince.codice_regione
-                    )
-                    .filter(
-                        db.ItalyProvince.denominazione_provincia
-                        == hoverData["points"][0]["customdata"][1]
-                    )
-                ).first()[0]
-                if hoverData
-                else "Italia"
-            )
         else:
-            region = (
-                [v["text"] for v in hoverData["points"]][0] if hoverData else "Italia"
+            text = click_data["points"][0]["text"]
+            query = db.db.session.query(db.ItalyRegion).filter_by(
+                denominazione_regione=text
             )
+            region = (
+                text if query.count() > 0 else click_data["points"][0]["customdata"][1]
+            )
+
         fig = generate_bar_plot_overall(region)
-        fig = update_xaxis(fig, relayout)
-        return fig
+        return update_xaxis(fig, relayout)
 
     @app.callback(
         Output(component_id="bar-plot-selected", component_property="figure"),
@@ -146,32 +135,27 @@ def set_callbacks_italy(app: Dash):
     def update_bar_plot_selected(
         value: str, click_data, relayout, n_clicks, visualizzazione
     ):
-        log.info(
-            f"value={value} click={click_data} n_clicks={n_clicks} vis={visualizzazione}"
-        )
+        log.info(f"value={value} click={click_data} n_clicks={n_clicks}")
         ctx = dash.callback_context
-        if ctx.triggered[0]["prop_id"] == "reset-button.n_clicks":
+        if ctx.triggered[0]["prop_id"] == "reset-button.n_clicks" or click_data is None:
             region = "Italia"
             fig = generate_bar_plot_selected(region=region, value=value)
-        elif visualizzazione == "province":
-            region = "Italia"
-            if click_data:
-                # check if the click_data still contains a region or an updated province
-                text = click_data["points"][0]["text"]
-                query = db.db.session.query(db.ItalyRegion).filter_by(
-                    denominazione_regione=text
-                )
-                if query.count() > 0:
-                    # the click still contains the region info
-                    fig = generate_bar_plot_selected(region=text, value=value)
-                else:
-                    provincia = text
-                    fig = generate_bar_plot_provicie(provincia=provincia, value=value)
+        elif visualizzazione == "provincie":
+            text = click_data["points"][0]["text"]
+            query = db.db.session.query(db.ItalyRegion).filter_by(
+                denominazione_regione=text
+            )
+            if query.count() > 0:
+                fig = generate_bar_plot_selected(region=text, value=value)
             else:
-                fig = generate_bar_plot_selected(region="Italia", value=value)
+                fig = generate_bar_plot_provicie(provincia=text, value=value)
         else:
+            text = click_data["points"][0]["text"]
+            query = db.db.session.query(db.ItalyRegion).filter_by(
+                denominazione_regione=text
+            )
             region = (
-                [v["text"] for v in click_data["points"]][0] if click_data else "Italia"
+                text if query.count() > 0 else click_data["points"][0]["customdata"][1]
             )
             fig = generate_bar_plot_selected(region=region, value=value)
         fig = update_xaxis(fig, relayout)
