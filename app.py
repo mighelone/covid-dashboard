@@ -15,6 +15,7 @@ import logging
 # from covid.callbacks import set_callbacks
 from covid.callbacks.multipage import set_callbacks_page
 from covid.callbacks.italy import set_callbacks_italy
+from covid.callbacks.world import set_callbacks_world
 from covid.layout import get_layout
 from covid.db import db
 
@@ -43,6 +44,7 @@ db.init_app(application)
 app.layout = get_layout
 set_callbacks_page(app)
 set_callbacks_italy(app)
+set_callbacks_world(app)
 
 if __name__ == "__main__":
     app.run_server(debug=True)

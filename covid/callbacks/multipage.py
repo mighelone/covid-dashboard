@@ -6,6 +6,7 @@ import dash_bootstrap_components as dbc
 
 from ..components.control_row import get_control_row
 from ..components.plot_row import get_plot_row
+from ..components.world import get_world_layout
 
 
 def set_callbacks_page(app: Dash):
@@ -25,12 +26,7 @@ def set_callbacks_page(app: Dash):
     def update_dropdown_menu(pathname: str):
         if pathname == "/italy":
             return [get_control_row(), get_plot_row()]
+        elif pathname == "/world":
+            return get_world_layout()
         else:
-            return html.H1("World")
-
-    # @app.callback(
-    #     Output("header", "children"),
-    #     [Input("dropdown-menu", "value")]
-    # )
-    # def f(value):
-    #     return f"Header {value}"
+            return "Error"

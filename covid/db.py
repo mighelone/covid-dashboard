@@ -94,6 +94,26 @@ class ItalyProvinceCase(Base):
     note_en = Column(String(100))
 
 
+class WorldCase(Base):
+    __tablename__ = "word_case"
+
+    id = Column(Integer, primary_key=True)
+    updated = Column(Date)
+    confirmed = Column(Integer)
+    confirmed_change = Column(Integer)
+    deaths = Column(Integer)
+    deaths_change = Column(Integer)
+    recovered = Column(Integer)
+    recovered_change = Column(Integer)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    iso2 = Column(String, nullable=True)
+    iso3 = Column(String, nullable=True)
+    country_region = Column(String, nullable=True)
+    admin_region_1 = Column(String, nullable=True)
+    admin_region_2 = Column(String, nullable=True)
+
+
 def get_db_session(conn: Optional[str] = None):
     conn = conn or os.environ.get(
         "DB_CONN", "mysql://root:superset@127.0.0.1:3306/covid"
