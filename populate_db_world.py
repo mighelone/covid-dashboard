@@ -1,3 +1,5 @@
+import os
+
 #%%
 from pathlib import Path
 import datetime as dt
@@ -103,8 +105,9 @@ from covid import db
 #     country_region = sql.Column(sql.String, nullable=True)
 #     admin_region_1 = sql.Column(sql.String, nullable=True)
 #     admin_region_2 = sql.Column(sql.String, nullable=True)
-
-conn = "postgresql+psycopg2://covid:FabrizioCorona@localhost:5432/covid"
+conn = os.environ.get(
+    "DATABASE_URL", "postgresql+psycopg2://covid:FabrizioCorona@localhost:5432/covid"
+)
 session = db.get_db_session(conn)
 
 #%%
