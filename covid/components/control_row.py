@@ -9,8 +9,27 @@ import datetime as dt
 def get_control_row():
     return dbc.Row(
         [
+            dbc.Col(html.H6("Visualizzazione"), md=1, lg=1),
             dbc.Col(
-                html.H5("Seleziona valore", style={"textAlign": "right"}), md=2, lg=2
+                # html.H6("Seleziona valore"),
+                dcc.Dropdown(
+                    id="dropdown-visualizzazione",
+                    options=[
+                        {"label": "Regioni", "value": "regioni"},
+                        {"label": "Province", "value": "province"},
+                    ],
+                    value="regioni",
+                    # optionHeight='30px'
+                    style={"height": "45px", "verticalAlign": "middle"},
+                    searchable=False,
+                    # xl=4,
+                    # md=4,
+                ),
+                md=1,
+                lg=1,
+            ),
+            dbc.Col(
+                html.H6("Seleziona valore", style={"textAlign": "right"}), md=1, lg=1
             ),
             dbc.Col(
                 # html.H6("Seleziona valore"),
@@ -27,7 +46,7 @@ def get_control_row():
                 lg=3,
             ),
             dbc.Col(
-                html.H5("Seleziona data", style={"textAlign": "right"}), md=2, lg=2
+                html.H6("Seleziona data", style={"textAlign": "right"}), md=1, lg=1
             ),
             dbc.Col(
                 dcc.DatePickerSingle(

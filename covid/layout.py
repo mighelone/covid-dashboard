@@ -18,9 +18,10 @@ def get_layout() -> dbc.Container:
         [
             dcc.Location("url"),
             get_navbar(),
-            get_help_modal(),
-            get_control_row(),
-            get_plot_row(),
+            dbc.Container(id="container", fluid=True),
+            # get_help_modal(),
+            # get_control_row(),
+            # get_plot_row(),
         ],
         fluid=True,
     )

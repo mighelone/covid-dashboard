@@ -11,10 +11,10 @@ from sqlalchemy import func
 
 import logging
 
-from . import data  # import get_italy_map_region, get_db_region_data
-from . import db
-from .plots.maps import generate_map_region, generate_map_province
-from .plots.bar import (
+from .. import data  # import get_italy_map_region, get_db_region_data
+from .. import db
+from ..plots.maps import generate_map_region, generate_map_province
+from ..plots.bar import (
     generate_bar_plot_overall,
     generate_bar_plot_selected,
     generate_bar_plot_provicie,
@@ -70,7 +70,7 @@ def update_xaxis(fig: go.Figure, relayout) -> go.Figure:
     return fig
 
 
-def set_callbacks(app: Dash):
+def set_callbacks_italy(app: Dash):
     @app.callback(
         Output(component_id="map-plot-italy", component_property="figure"),
         [
@@ -184,22 +184,22 @@ def set_callbacks(app: Dash):
             return not is_open
         return is_open
 
-    @app.callback(
-        [Output(f"navlink-regioni", "active"), Output("navlink-province", "active")],
-        [Input("url", "pathname")],
-    )
-    def toggle_active_links(pathname):
-        if pathname == "/":
-            # Treat page 1 as the homepage / index
-            return False, False
-        return [pathname == "/regioni", pathname == "/province"]
+    # @app.callback(
+    #     [Output(f"navlink-regioni", "active"), Output("navlink-province", "active")],
+    #     [Input("url", "pathname")],
+    # )
+    # def toggle_active_links(pathname):
+    #     if pathname == "/":
+    #         # Treat page 1 as the homepage / index
+    #         return False, False
+    #     return [pathname == "/regioni", pathname == "/province"]
 
     @app.callback(
         [Output("dropdown-menu", "options"), Output("dropdown-menu", "value")],
-        [Input("url", "pathname")],
+        [Input("dropdown-visualizzazione", "value")],
     )
-    def update_dropdown_menu(pathname: str):
-        if pathname == "/province":
+    def update_dropdown_menu(value: str):
+        if value == "province":
             return (MAP_LABELS_PROVINCE, DEFAULT_PROVINCE)
         else:
             return (MAP_LABELS_REGION, DEFAULT_REGION)
