@@ -101,19 +101,14 @@ def generate_map_province(value: str, data: DataType = None) -> go.Figure:
         locations=df["codice_provincia"],
         featureidkey="properties.prov_istat_code_num",
         colorscale=COLORSCALE,
-        text=df["provincia"],
-        # hovertemplate=(
-        #     "<b>%{text}</b><br><br>" + value + "=%{z}<br>"
-        #     "totale positivi=%{customdata[1]}<br>"
-        #     "dimessi guariti=%{customdata[2]}<br>"
-        #     "deceduti=%{customdata[3]}<br><br>"
-        #     "<b>Totale per provincie</b>:<br>"
-        #     "%{customdata[0]}"
-        #     "<extra></extra>"
-        # ),
-        customdata=df[
-            ["denominazione_regione", "denominazione_provincia", "codice_provincia"]
-        ],
+        text=df["denominazione_provincia"],
+        hovertemplate=(
+            "<b>%{text} (%{customdata[0]})</b><br>"
+            "Regione: %{customdata[1]}"
+            "<br>" + value + "=%{z}<br>"
+            "<extra></extra>"
+        ),
+        customdata=df[["sigla_provincia", "denominazione_regione",]],
     )
 
     fig = go.Figure(
@@ -153,7 +148,8 @@ def get_province_data(
         session.query(
             db.ItalyProvince.codice_provincia,
             db.ItalyProvince.denominazione_provincia,
-            concat.label("provincia"),
+            # concat.label("provincia"),
+            db.ItalyProvince.sigla_provincia,
             db.ItalyRegion.denominazione_regione,
             db.ItalyProvinceCase.__table__.c[value],
             db.ItalyProvinceCase.note_it,
