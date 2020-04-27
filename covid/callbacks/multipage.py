@@ -29,4 +29,4 @@ def set_callbacks_page(app: Dash):
         elif pathname == "/world":
             return get_world_layout()
         else:
-            return "Error"
+            return [get_control_row(), get_plot_row()]
