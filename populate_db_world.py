@@ -12,10 +12,6 @@ import logging
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
-#%%
-daily_reports_path = Path(
-    "../../COVID-19/csse_covid_19_data/csse_covid_19_time_series"
-).absolute()
 
 # %%
 
@@ -83,35 +79,11 @@ from sqlalchemy.orm import relationship
 
 from covid import db
 
-# %%
-# engine = sql.create_engine("sqlite:///world.db")
-
-
-# class WorldCase(Base):
-#     __tablename__ = "word_case"
-
-#     id = sql.Column(sql.Integer, primary_key=True)
-#     updated = sql.Column(sql.DATE)
-#     confirmed = sql.Column(sql.Integer)
-#     confirmed_change = sql.Column(sql.Integer)
-#     deaths = sql.Column(sql.Integer)
-#     deaths_change = sql.Column(sql.Integer)
-#     recovered = sql.Column(sql.Integer)
-#     recovered_change = sql.Column(sql.Integer)
-#     latitude = sql.Column(sql.Float, nullable=True)
-#     longitude = sql.Column(sql.Float, nullable=True)
-#     iso2 = sql.Column(sql.String, nullable=True)
-#     iso3 = sql.Column(sql.String, nullable=True)
-#     country_region = sql.Column(sql.String, nullable=True)
-#     admin_region_1 = sql.Column(sql.String, nullable=True)
-#     admin_region_2 = sql.Column(sql.String, nullable=True)
-conn = os.environ.get(
-    "DATABASE_URL", "postgresql+psycopg2://covid:FabrizioCorona@localhost:5432/covid"
-)
-session = db.get_db_session(conn)
 
 #%%
 if __name__ == "__main__":
+    conn = os.environ.get("DATABASE_URL")
+    session = db.get_db_session(conn)
     count = session.query(db.WorldCase).count()
     log.info(f"Rows before update={count}")
     url = "https://raw.githubusercontent.com/microsoft/Bing-COVID-19-Data/master/data/2020-4-26.csv"
