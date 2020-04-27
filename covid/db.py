@@ -107,11 +107,11 @@ class WorldCase(Base):
     recovered_change = Column(Integer)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
-    iso2 = Column(String, nullable=True)
-    iso3 = Column(String, nullable=True)
-    country_region = Column(String, nullable=True)
-    admin_region_1 = Column(String, nullable=True)
-    admin_region_2 = Column(String, nullable=True)
+    iso2 = Column(String(4), nullable=True)
+    iso3 = Column(String(4), nullable=True)
+    country_region = Column(String(30), nullable=True)
+    admin_region_1 = Column(String(50), nullable=True)
+    admin_region_2 = Column(String(50), nullable=True)
 
 
 def get_db_session(conn: Optional[str] = None):
