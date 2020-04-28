@@ -28,7 +28,7 @@ concat = func.CONCAT(
     db.ItalyProvince.sigla_provincia,
     "): ",
     db.ItalyProvinceCase.totale_casi,
-)  # .label('provincia'),
+)
 
 
 def generate_map_region(value: str, data: DataType = None) -> go.Figure:

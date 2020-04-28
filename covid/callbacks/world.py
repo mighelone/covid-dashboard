@@ -67,17 +67,7 @@ def set_callbacks_world(app: Dash):
             "normalized" if normalized else "absolute"
         ]
         lines = [
-            go.Scatter(
-                y=get_data(
-                    value,
-                    country,
-                    threashold=threashold,
-                    normalize=COUNTRIES[country] / 1e6 if normalized else 1,
-                    rolling_average=rolling,
-                )[value],
-                name=country,
-                line=go.scatter.Line(width=3),
-            )
+            get_line(value, country, threashold, normalized, rolling)
             for country in countries
         ]
         layout = go.Layout(
@@ -110,7 +100,6 @@ def get_data(
         .filter(db.WorldCase.country_region == country)
         .filter(db.WorldCase.admin_region_1 == adm1)
         .filter(db.WorldCase.admin_region_2 == adm2)
-        #         .filter(WorldCase.__table__.c[value] >= threashold)
         .order_by(db.WorldCase.updated)
         .all()
     )
@@ -121,3 +110,24 @@ def get_data(
     df[value] = df[value] / normalize
     df = df[df[value] > threashold]
     return df
+
+
+def get_line(value: str, country: str, threashold: int, normalized: bool, rolling: int):
+    # import pdb; pdb.set_trace()
+    df = get_data(
+        value,
+        country,
+        threashold=threashold,
+        normalize=COUNTRIES[country] / 1e6 if normalized else 1,
+        rolling_average=rolling,
+    )
+    return go.Scatter(
+        y=df[value],
+        text=df["updated"],
+        name=country,
+        line=go.scatter.Line(width=3),
+        hovertemplate=(
+            f"<b>{country}<b><br>" + value + ": %{y}<br>" + "days: %{x}<br>"
+            "Date: %{text}"
+        ),
+    )
