@@ -1,4 +1,0 @@
-uses: RojerGS/python-black-check@master
-with:
-  line-length: '88'
-  path: '.'
