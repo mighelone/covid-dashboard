@@ -135,12 +135,14 @@ def set_callbacks_italy(app: Dash):
     def update_bar_plot_selected(
         value: str, click_data, relayout, n_clicks, visualizzazione
     ):
-        log.info(f"value={value} click={click_data} n_clicks={n_clicks}")
+        log.debug(
+            f"value={value} click={click_data} n_clicks={n_clicks} vis={visualizzazione}"
+        )
         ctx = dash.callback_context
         if ctx.triggered[0]["prop_id"] == "reset-button.n_clicks" or click_data is None:
             region = "Italia"
             fig = generate_bar_plot_selected(region=region, value=value)
-        elif visualizzazione == "provincie":
+        elif visualizzazione == "province":
             text = click_data["points"][0]["text"]
             query = db.db.session.query(db.ItalyRegion).filter_by(
                 denominazione_regione=text
