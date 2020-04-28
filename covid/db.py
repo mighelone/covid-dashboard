@@ -170,8 +170,15 @@ def get_singlefile(uri: str) -> Iterator[Dict[str, Any]]:
     with urlopen(uri) as response:
         columns = next(response).decode().strip().split(",")
         for line in response:
-            values = [get_field(value) for value in line.decode().strip().split(",")]
-            yield dict(zip(columns, values))
+            try:
+                values = [
+                    get_field(value)
+                    for value in line.decode("latin-1").strip().split(",")
+                ]
+            except:
+                log.error(f"Error in {line}")
+            else:
+                yield dict(zip(columns, values))
 
 
 def get_singlefile_regioni(
