@@ -82,11 +82,14 @@ from covid import db
 
 #%%
 if __name__ == "__main__":
-    conn = os.environ.get("DATABASE_URL")
+    conn = os.environ.get(
+        "DATABASE_URL",
+        "postgresql+psycopg2://covid:FabrizioCorona@localhost:5432/covid",
+    )
     session = db.get_db_session(conn)
     count = session.query(db.WorldCase).count()
     log.info(f"Rows before update={count}")
-    url = "https://raw.githubusercontent.com/microsoft/Bing-COVID-19-Data/master/data/2020-4-26.csv"
+    url = "https://raw.githubusercontent.com/microsoft/Bing-COVID-19-Data/master/data/Bing-COVID19-Data.csv"
 
     with urllib.request.urlopen(url) as f:
         header = next(f).decode().strip().split(",")
