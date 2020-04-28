@@ -5,12 +5,10 @@ def get_navbar(brand: str = "COVID-19 Dashboard") -> dbc.NavbarSimple:
     return dbc.NavbarSimple(
         children=[
             dbc.NavItem(
-                dbc.NavLink(id="navlink-regioni", children="Regioni", href="/regioni")
+                dbc.NavLink(id="navlink-italy", children="Italy", href="/italy")
             ),
             dbc.NavItem(
-                dbc.NavLink(
-                    id="navlink-province", children="Province", href="/province"
-                )
+                dbc.NavLink(id="navlink-world", children="World", href="/world")
             ),
             dbc.DropdownMenu(
                 children=[
