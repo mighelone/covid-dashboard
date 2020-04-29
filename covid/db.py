@@ -97,21 +97,22 @@ class ItalyProvinceCase(Base):
 class WorldCase(Base):
     __tablename__ = "word_case"
 
-    id = Column(Integer, primary_key=True)
-    updated = Column(Date)
+    # id = Column(Integer, primary_key=True)
+    updated = Column(Date, primary_key=True)
+    country = Column(String(100), primary_key=True)
+    admin = Column(String(100), primary_key=True)
+    province = Column(String(100), primary_key=True)
     confirmed = Column(Integer)
-    confirmed_change = Column(Integer)
+    active = Column(Integer)
+    # confirmed_change = Column(Integer)
     deaths = Column(Integer)
-    deaths_change = Column(Integer)
+    # deaths_change = Column(Integer)
     recovered = Column(Integer)
-    recovered_change = Column(Integer)
+    # recovered_change = Column(Integer)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
-    iso2 = Column(String(4), nullable=True)
-    iso3 = Column(String(4), nullable=True)
-    country_region = Column(String(30), nullable=True)
-    admin_region_1 = Column(String(50), nullable=True)
-    admin_region_2 = Column(String(50), nullable=True)
+    # iso2 = Column(String(4), nullable=True)
+    # iso3 = Column(String(4), nullable=True)
 
 
 def get_db_session(conn: Optional[str] = None):
