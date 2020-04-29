@@ -4,21 +4,21 @@ from dash.dependencies import Input, Output, State
 import plotly.graph_objects as go
 import pandas as pd
 import logging
+from sqlalchemy import func
 
 from .. import db
 
-db.WorldCase.deaths_change
 
 log = logging.getLogger(__name__)
 
 COUNTRIES = {
     "Italy": 60_461_826,
     "Spain": 46_754_778,
-    "China (mainland)": 1_439_323_776,
+    "China": 1_439_323_776,
     "United Kingdom": 67_886_011,
     "France": 65_273_511,
     "Germany": 83_783_942,
-    "United States": 331_002_651,
+    "USA": 331_002_651,
     "South Korea": 51_269_185,
     "Netherlands": 17_134_872,
     "Belgium": 11_589_623,
@@ -54,7 +54,6 @@ def set_callbacks_world(app: Dash):
         ],
     )
     def plot_countries(countries: List[str], value: str, normalized: str):
-
         normalized = normalized != []
 
         title = f"{value}" + ("/1M people" if normalized else "")
@@ -66,9 +65,11 @@ def set_callbacks_world(app: Dash):
         threashold = THREASHOLD[value.replace("_change", "")][
             "normalized" if normalized else "absolute"
         ]
+        # TODO normalize only works for countries with defined population. Update to all
         lines = [
             get_line(value, country, threashold, normalized, rolling)
             for country in countries
+            if not normalized or country in COUNTRIES
         ]
         layout = go.Layout(
             template="plotly_white",
@@ -86,8 +87,6 @@ def set_callbacks_world(app: Dash):
 def get_data(
     value,
     country,
-    adm1="",
-    adm2="",
     normalize=1,
     threashold: int = 100,
     rolling_average=None,
@@ -96,24 +95,24 @@ def get_data(
 
     session = session or db.db.session
     query = (
-        session.query(db.WorldCase.updated, db.WorldCase.__table__.c[value])
-        .filter(db.WorldCase.country_region == country)
-        .filter(db.WorldCase.admin_region_1 == adm1)
-        .filter(db.WorldCase.admin_region_2 == adm2)
-        .order_by(db.WorldCase.updated)
-        .all()
+        session.query(
+            db.WorldCase.date, func.sum(db.WorldCase.__table__.c[value]).label(value)
+        )
+        .filter(db.WorldCase.country == country)
+        .group_by(db.WorldCase.date)
+        .order_by(db.WorldCase.date)
     )
     df = pd.DataFrame(query)
     if rolling_average:
         df[value] = df[value].rolling(rolling_average, min_periods=1).mean()
 
-    df[value] = df[value] / normalize
+    if normalize != 1:
+        df[value] = df[value].astype(int) / normalize
     df = df[df[value] > threashold]
     return df
 
 
 def get_line(value: str, country: str, threashold: int, normalized: bool, rolling: int):
-    # import pdb; pdb.set_trace()
     df = get_data(
         value,
         country,
@@ -123,7 +122,7 @@ def get_line(value: str, country: str, threashold: int, normalized: bool, rollin
     )
     return go.Scatter(
         y=df[value],
-        text=df["updated"],
+        text=df["date"],
         name=country,
         line=go.scatter.Line(width=3),
         hovertemplate=(
