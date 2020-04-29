@@ -14,8 +14,6 @@ from covid import db
 def italy(ctx: click.Context):
     """Manage the COVID 19 database for Italy
     """
-    # ctx.ensure_object(dict)
-    # ctx.obj["db_conn"] = db_conn
 
 
 @italy.command()
@@ -53,7 +51,3 @@ def init(ctx: click.Context):
     log.info(f"Initializing table italy_province...")
     db.create_table_province(session=session)
     session.close()
-
-
-# if __name__ == "__main__":
-#     main()

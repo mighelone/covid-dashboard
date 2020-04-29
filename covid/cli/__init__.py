@@ -2,6 +2,7 @@ import click
 import logging
 
 from .cli_italy import italy
+from .cli_world import world
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -27,3 +28,4 @@ def main(ctx: click.Context, db_conn: str):
 # main.add_command(.)
 
 main.add_command(italy)
+main.add_command(world)
