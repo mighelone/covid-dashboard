@@ -144,7 +144,7 @@ def read_data(path: str):
 
     df["province"] = df["province"].where(~df["province"].isnull(), df["country"])
     df["admin"] = df["admin"].where(~df["admin"].isnull(), df["country"])
-    df["updated"] = df["updated"].dt.date
+    # df["updated"] = df["updated"].dt.date
     df = df.drop_duplicates(
         subset=["country", "updated", "admin", "province"], keep="last"
     )
@@ -191,6 +191,8 @@ def update(ctx: click.Context, full: bool, date: dt.datetime):
         except urllib.error.HTTPError:
             log.error(f"No data found for {date} on {path}")
             continue
+        else:
+            df["date"] = date
 
         try:
             session.execute(Upsert(db.WorldCase, df.to_dict(orient="record")))

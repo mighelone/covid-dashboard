@@ -2,7 +2,7 @@ from typing import Optional, List, Dict, Any, Iterator
 import datetime as dt
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey, DateTime
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
 import os
@@ -98,10 +98,11 @@ class WorldCase(Base):
     __tablename__ = "word_case"
 
     # id = Column(Integer, primary_key=True)
-    updated = Column(Date, primary_key=True)
+    date = Column(Date, primary_key=True)
     country = Column(String(100), primary_key=True)
     admin = Column(String(100), primary_key=True)
     province = Column(String(100), primary_key=True)
+    updated = Column(DateTime)
     confirmed = Column(Integer)
     active = Column(Integer)
     # confirmed_change = Column(Integer)
