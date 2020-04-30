@@ -112,29 +112,34 @@ def set_callbacks_world(app: Dash):
 
 
 def get_data(
-    value,
-    country,
-    normalize=1,
+    value: str,
+    country: str,
+    normalize: int = 1,
     threashold: int = 100,
     rolling_average=None,
     session=None,
 ):
 
     session = session or db.db.session
+    change = value.endswith("_change")
+    value_query = value.replace("_change", "")
     query = (
         session.query(
-            db.WorldCase.date, func.sum(db.WorldCase.__table__.c[value]).label(value)
+            db.WorldCase.date,
+            func.sum(db.WorldCase.__table__.c[value_query]).label(value),
         )
         .filter(db.WorldCase.country == country)
         .group_by(db.WorldCase.date)
         .order_by(db.WorldCase.date)
     )
     df = pd.DataFrame(query)
+    if change:
+        df[value] = df[value].diff()
     if rolling_average:
         df[value] = df[value].rolling(rolling_average, min_periods=1).mean()
 
     if normalize != 1:
-        df[value] = df[value].astype(int) / normalize
+        df[value] = df[value] / normalize
     df = df[df[value] > threashold]
     return df
 
