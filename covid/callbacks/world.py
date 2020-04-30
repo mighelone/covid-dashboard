@@ -139,7 +139,7 @@ def get_data(
         df[value] = df[value].rolling(rolling_average, min_periods=1).mean()
 
     if normalize != 1:
-        df[value] = df[value] / normalize
+        df[value] = df[value].astype(float) / normalize
     df = df[df[value] > threashold]
     return df
 

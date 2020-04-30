@@ -36,7 +36,7 @@ def get_world_layout():
                             optionHeight=30,
                             multi=True,
                             searchable=True,
-                            value=COUNTRIES[:10],
+                            value=COUNTRIES[:5],
                         ),
                         html.H5("Select value", style={"marginTop": "15px"}),
                         dcc.Dropdown(
