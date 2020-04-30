@@ -15,13 +15,6 @@ from .components.plot_row import get_plot_row
 
 def get_layout() -> dbc.Container:
     return dbc.Container(
-        [
-            dcc.Location("url"),
-            get_navbar(),
-            dbc.Container(id="container", fluid=True),
-            # get_help_modal(),
-            # get_control_row(),
-            # get_plot_row(),
-        ],
+        [dcc.Location("url"), get_navbar(), dbc.Container(id="container", fluid=True),],
         fluid=True,
     )

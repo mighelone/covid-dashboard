@@ -1,13 +1,13 @@
+import logging
 from typing import List
+
+import pandas as pd
+import plotly.graph_objects as go
 from dash import Dash
 from dash.dependencies import Input, Output, State
-import plotly.graph_objects as go
-import pandas as pd
-import logging
 from sqlalchemy import func
 
 from .. import db
-
 
 log = logging.getLogger(__name__)
 

@@ -1,18 +1,25 @@
-from typing import Optional, List, Dict, Any, Iterator
 import datetime as dt
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey, DateTime
-from sqlalchemy.orm import sessionmaker
-import pandas as pd
-import os
 import logging
-from urllib.request import urlopen
+import os
+from typing import Any, Dict, Iterator, List, Optional
 from urllib.error import HTTPError
-from dateutil.parser import parse, ParserError
+from urllib.request import urlopen
 
-from sqlalchemy.orm import Session
+import pandas as pd
+from dateutil.parser import ParserError, parse
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import (
+    Column,
+    Date,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    create_engine,
+)
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Session, sessionmaker
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
