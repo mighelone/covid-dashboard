@@ -1,11 +1,13 @@
 import datetime as dt
-import pandas as pd
 import logging
-import numpy as np
-import click
 import urllib
 
-import sqlalchemy as sql
+import click
+import numpy as np
+import pandas as pd
+import sqlalchemy as sa
+import sqlalchemy.sql.expression as expr
+from sqlalchemy.ext.compiler import compiles
 
 from covid import db
 
@@ -14,11 +16,6 @@ conn = "mysql://root:example@127.0.0.1:3306/covid"
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
-
-
-import sqlalchemy as sa
-from sqlalchemy.ext.compiler import compiles
-import sqlalchemy.sql.expression as expr
 
 
 class Upsert(expr.Insert):

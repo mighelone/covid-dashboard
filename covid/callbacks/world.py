@@ -11,6 +11,8 @@ from .. import db
 
 log = logging.getLogger(__name__)
 
+# TODO add more countries -> find a good source and match names between the 2 datasets
+"""Population of main countries """
 COUNTRIES = {
     "Italy": 60_461_826,
     "Spain": 46_754_778,
@@ -24,12 +26,15 @@ COUNTRIES = {
     "Belgium": 11_589_623,
 }
 
+
+"""Threasohod values for plots showing the number of days of the epidemy"""
 THREASHOLD = {
     "deaths": {"absolute": 10, "normalized": 1},
     "confirmed": {"absolute": 100, "normalized": 10},
     "recovered": {"absolute": 10, "normalized": 1},
 }
 
+""" Update menu layout component. Select Y axis log/linear"""
 updatemenu = go.layout.Updatemenu(
     type="buttons",
     active=1,
@@ -45,6 +50,12 @@ updatemenu = go.layout.Updatemenu(
 
 
 def set_callbacks_world(app: Dash):
+    """Set the callbacks for the world page
+
+    Arguments:
+        app {Dash} -- Dash app, the callbacks are assigned to the app
+    """
+
     @app.callback(
         Output("world-plot", "figure"),
         [
@@ -52,8 +63,22 @@ def set_callbacks_world(app: Dash):
             Input("dropdown-select-value", "value"),
             Input("select-normalized", "value"),
         ],
+        [State("world-plot", "figure")],
     )
-    def plot_countries(countries: List[str], value: str, normalized: str):
+    def plot_countries(
+        countries: List[str], value: str, normalized: str, fig: go.Figure
+    ) -> go.Figure:
+        """Line plot of the selected value for the selected countries
+
+        Arguments:
+            countries {List[str]} -- List of selected countries to show
+            value {str} -- Value shown on the Y-axis
+            normalized {str} -- Show lines normalized per 1M of population
+            fig {go.Figure} -- Old figure
+
+        Returns:
+            go.Figure -- Plotly figure object
+        """
         normalized = normalized != []
 
         title = f"{value}" + ("/1M people" if normalized else "")
