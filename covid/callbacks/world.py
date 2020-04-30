@@ -1,30 +1,37 @@
 import logging
-from typing import List
+from typing import List, Dict, Optional, Any
 
 import pandas as pd
 import plotly.graph_objects as go
+import dash
 from dash import Dash
 from dash.dependencies import Input, Output, State
 from sqlalchemy import func
-
+import json
 from .. import db
 
 log = logging.getLogger(__name__)
 
 # TODO add more countries -> find a good source and match names between the 2 datasets
 """Population of main countries """
-COUNTRIES = {
-    "Italy": 60_461_826,
-    "Spain": 46_754_778,
-    "China": 1_439_323_776,
-    "United Kingdom": 67_886_011,
-    "France": 65_273_511,
-    "Germany": 83_783_942,
-    "USA": 331_002_651,
-    "South Korea": 51_269_185,
-    "Netherlands": 17_134_872,
-    "Belgium": 11_589_623,
-}
+# COUNTRIES = {
+#     "Italy": 60_461_826,
+#     "Spain": 46_754_778,
+#     "China": 1_439_323_776,
+#     "United Kingdom": 67_886_011,
+#     "France": 65_273_511,
+#     "Germany": 83_783_942,
+#     "USA": 331_002_651,
+#     "South Korea": 51_269_185,
+#     "Netherlands": 17_134_872,
+#     "Belgium": 11_589_623,
+# }
+with open("./data/world_population.json", "r") as f:
+    COUNTRIES = {
+        row["name"]: int(float(row["pop2020"]) * 1e3) for row in json.load(f)["data"]
+    }
+
+COUNTRIES["USA"] = COUNTRIES.pop("United States")
 
 
 """Threasohod values for plots showing the number of days of the epidemy"""
@@ -80,16 +87,27 @@ def set_callbacks_world(app: Dash):
             go.Figure -- Plotly figure object
         """
         normalized = normalized != []
-
-        title = f"{value}" + ("/1M people" if normalized else "")
-
-        countries = [countries] if isinstance(countries, str) else countries
-
         rolling = 7 if value.endswith("_change") else None
 
         threashold = THREASHOLD[value.replace("_change", "")][
             "normalized" if normalized else "absolute"
         ]
+        ctx = dash.callback_context
+        log.info(f"Plot Triggered {ctx.triggered}")
+        # check if the plot needs only to be updated
+        if ctx.triggered[0]["prop_id"] == "dropdown-select-countries.value" and fig:
+            return update_lines(
+                fig=fig,
+                value=value,
+                countries=countries,
+                threashold=threashold,
+                rolling=rolling,
+                normalized=normalized,
+            )
+
+        title = f"{value}" + ("/1M people" if normalized else "")
+        countries = [countries] if isinstance(countries, str) else countries
+
         # TODO normalize only works for countries with defined population. Update to all
         lines = [
             get_line(value, country, threashold, normalized, rolling)
@@ -155,3 +173,37 @@ def get_line(value: str, country: str, threashold: int, normalized: bool, rollin
             "Date: %{text}"
         ),
     )
+
+
+def update_lines(
+    fig: go.Figure,
+    value: str,
+    countries: List[str],
+    threashold: float,
+    rolling: bool,
+    normalized: bool,
+) -> Dict[str, Any]:
+    log.info(f"Plot Triggered by new countries selection")
+    old_countries = set([d["name"] for d in fig["data"]])
+    log.info(f"Old countries = {old_countries}")
+    countries_set = set(countries)
+    removed_countries = old_countries - countries_set
+    added_countries = countries_set - old_countries
+    log.info(f"Add new countries: {added_countries}")
+    log.info(f"Remove old countries: {removed_countries}")
+    if removed_countries:
+        new_data = [
+            line for line in fig["data"] if line["name"] not in removed_countries
+        ]
+        fig["data"] = new_data
+        log.info("Updated fig removing countries")
+    if added_countries:
+        new_lines = [
+            get_line(value, country, threashold, normalized, rolling).to_plotly_json()
+            for country in added_countries
+            if not normalized or country in COUNTRIES
+        ]
+        log.info("Updated fig adding new countries")
+        fig["data"].extend(new_lines)
+
+    return fig

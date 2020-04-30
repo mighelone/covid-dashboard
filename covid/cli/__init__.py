@@ -26,7 +26,5 @@ def main(ctx: click.Context, db_conn: str):
     ctx.obj["db_conn"] = db_conn
 
 
-# main.add_command(.)
-
 main.add_command(italy)
 main.add_command(world)
