@@ -90,3 +90,14 @@ def get_italy_map(selection: str) -> Dict[str, Any]:
     with open(path, "r") as f:
         data = json.load(f)
     return data
+
+
+def get_population_data() -> Dict[str, int]:
+    with (data_path / "../data/world_population.json").open("r") as f:
+        countries = {
+            row["name"]: int(float(row["pop2020"]) * 1e3)
+            for row in json.load(f)["data"]
+        }
+
+    countries["USA"] = countries.pop("United States")
+    return countries
