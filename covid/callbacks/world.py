@@ -158,7 +158,7 @@ def get_line(value: str, country: str, threashold: int, normalized: bool, rollin
         name=country,
         line=go.scatter.Line(width=3),
         hovertemplate=(
-            f"<b>{country}<b><br>" + value + ": %{y}<br>" + "days: %{x}<br>"
+            f"<b>{country}<b><br>" + value + ": %{y:.0f}<br>" + "days: %{x}<br>"
             "Date: %{text}"
         ),
     )

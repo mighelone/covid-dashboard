@@ -12,10 +12,14 @@ from sqlalchemy.ext.compiler import compiles
 from covid import db
 
 # conn = 'sqlite:///covid.db'
-conn = "mysql://root:example@127.0.0.1:3306/covid"
+# conn = "mysql://root:example@127.0.0.1:3306/covid"
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
+
+
+BASE_PATH = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/{date:%m-%d-%Y}.csv"
+START_DATE = dt.date(2020, 1, 22)
 
 
 class Upsert(expr.Insert):
@@ -149,10 +153,6 @@ def read_data(path: str):
     return df
 
 
-BASE_PATH = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/{date:%m-%d-%Y}.csv"
-START_DATE = dt.date(2020, 1, 22)
-
-
 @click.group()
 @click.pass_context
 def world(ctx: click.Context):
@@ -164,16 +164,18 @@ def world(ctx: click.Context):
     "--full/--no-full", default=False, help="Fully populate database from starting date"
 )
 @click.option(
-    "--date",
-    default=dt.datetime.today().strftime("%Y-%m-%d"),
-    type=click.DateTime(),
-    help="Last day to update db",
+    "--date", default=None, type=click.DateTime(), help="Last day to update db",
+)
+@click.option(
+    "--debug/--no-debug", default=False, help="Start a debug session if the code fails."
 )
 @click.pass_context
-def update(ctx: click.Context, full: bool, date: dt.datetime):
+def update(ctx: click.Context, full: bool, date: dt.datetime, debug: bool):
     """
     Update the world case table with new data
     """
+    date = date or dt.datetime.today() - dt.timedelta(days=1)
+
     session = db.get_db_session(ctx.obj["db_conn"])
     date = date.date()
     start_date, n_days = (START_DATE, (date - START_DATE).days) if full else (date, 1)
@@ -194,8 +196,12 @@ def update(ctx: click.Context, full: bool, date: dt.datetime):
         try:
             session.execute(Upsert(db.WorldCase, df.to_dict(orient="record")))
         except:
-            log.error(f"Error inserting data on {date}")
+            log.exception(f"Error inserting data on {date}")
             session.rollback()
+            if debug:
+                import pdb
+
+                pdb.set_trace()
         else:
             session.commit()
 

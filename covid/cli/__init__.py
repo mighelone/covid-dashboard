@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 @click.option(
     "--db-conn",
     "-d",
-    default="sqlite:///covid.db",
+    default="mysql://root:example@127.0.0.1:3306/covid",
     envvar="DB_CONN",
     help="Database connection (sqlalchemy format)",
 )
