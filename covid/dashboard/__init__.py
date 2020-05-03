@@ -10,7 +10,7 @@ from .callbacks.multipage import set_callbacks_page
 
 def configure_dahboard(app: Flask) -> dash.Dash:
     dash_app = dash.Dash(
-        "name", server=app, external_stylesheets=[dbc.themes.BOOTSTRAP]
+        app.name, server=app, external_stylesheets=[dbc.themes.BOOTSTRAP]
     )
 
     # Since we're adding callbacks to elements that don't exist in the app.layout,
