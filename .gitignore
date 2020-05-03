@@ -5,3 +5,5 @@ old_stuff
 notebooks
 .env
 *.pyc
+covid.db
+*.egg-info
