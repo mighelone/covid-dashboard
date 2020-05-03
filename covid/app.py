@@ -3,8 +3,10 @@ import os
 
 import dash
 from flask import Flask, jsonify
+from flask_smorest import Api
 
 from .dashboard import configure_dahboard
+from .api import register_api
 
 # from .db import db
 from .extension import db, ma
@@ -23,18 +25,21 @@ def create_app(testing=False, cli=False) -> Flask:
     app.config.from_object(environment_configuration)
     db.init_app(app)
     ma.init_app(app)
+
+    register_api(app)
+
     dash_app = configure_dahboard(app)
 
-    @app.route("/api")
-    def api():
-        # TODO move this to the right method
-        from .db import ItalyRegion
-        from .api.resources.italy.region import ItalyRegionSchema
+    # @app.route("/api")
+    # def api():
+    #     # TODO move this to the right method
+    #     from .db import ItalyRegion
+    #     from .api.resources.italy.region import ItalyRegionSchema
 
-        schema = ItalyRegionSchema(many=True)
-        query = ItalyRegion.query
-        res = schema.dump(query)
-        return jsonify(res)
+    #     schema = ItalyRegionSchema(many=True)
+    #     query = ItalyRegion.query
+    #     res = schema.dump(query)
+    #     return jsonify(res)
 
     @app.route("/")
     def dash_app():
