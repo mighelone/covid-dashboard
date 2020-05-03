@@ -1,16 +1,14 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint
 
-from ....extension import ma, db
 from ....db import ItalyRegion
-
-# from ... import api_bp
+from ....extension import db, ma
 
 
 class ItalyRegionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = ItalyRegion
-        load_instance = True  # convert json to a Pet object
+        load_instance = True
 
 
 def register_italy_regions_api(bp: Blueprint):
