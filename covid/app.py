@@ -30,17 +30,6 @@ def create_app(testing=False, cli=False) -> Flask:
 
     dash_app = configure_dahboard(app)
 
-    # @app.route("/api")
-    # def api():
-    #     # TODO move this to the right method
-    #     from .db import ItalyRegion
-    #     from .api.resources.italy.region import ItalyRegionSchema
-
-    #     schema = ItalyRegionSchema(many=True)
-    #     query = ItalyRegion.query
-    #     res = schema.dump(query)
-    #     return jsonify(res)
-
     @app.route("/")
     def dash_app():
         return dash_app.index()
