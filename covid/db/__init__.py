@@ -25,54 +25,13 @@ from ..extension import db
 from .italy_region import ItalyRegion
 from .italy_region_case import ItalyRegionCase
 from .italy_province import ItalyProvince
+from .italy_province_case import ItalyProvinceCase
+from .world_case import WorldCase
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 Base = db.Model
-
-
-class ItalyProvince(Base):
-    __tablename__ = "italy_province"
-    codice_provincia = Column(Integer, primary_key=True)
-    sigla_provincia = Column(String(2))
-    codice_regione = Column(Integer, ForeignKey("italy_region.codice_regione"))
-    denominazione_provincia = Column(String(50))
-    lat = Column(Float)
-    long = Column(Float)
-
-
-class ItalyProvinceCase(Base):
-    __tablename__ = "italy_province_case"
-    data = Column(Date, primary_key=True)
-    codice_provincia = Column(
-        Integer, ForeignKey("italy_province.codice_provincia"), primary_key=True
-    )
-    totale_casi = Column(Integer)
-    note_it = Column(String(100))
-    note_en = Column(String(100))
-
-
-class WorldCase(Base):
-    __tablename__ = "word_case"
-
-    # id = Column(Integer, primary_key=True)
-    date = Column(Date, primary_key=True)
-    country = Column(String(100), primary_key=True)
-    admin = Column(String(100), primary_key=True)
-    province = Column(String(100), primary_key=True)
-    updated = Column(DateTime)
-    confirmed = Column(Integer)
-    active = Column(Integer)
-    # confirmed_change = Column(Integer)
-    deaths = Column(Integer)
-    # deaths_change = Column(Integer)
-    recovered = Column(Integer)
-    # recovered_change = Column(Integer)
-    latitude = Column(Float, nullable=True)
-    longitude = Column(Float, nullable=True)
-    # iso2 = Column(String(4), nullable=True)
-    # iso3 = Column(String(4), nullable=True)
 
 
 def get_db_session(conn: Optional[str] = None):
