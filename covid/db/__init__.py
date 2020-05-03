@@ -23,32 +23,13 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from ..extension import db
 from .italy_region import ItalyRegion
+from .italy_region_case import ItalyRegionCase
+from .italy_province import ItalyProvince
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 Base = db.Model
-
-
-class ItalyRegionCase(Base):
-    __tablename__ = "italy_region_case"
-    data = Column(Date, primary_key=True)
-    codice_regione = Column(
-        Integer, ForeignKey("italy_region.codice_regione"), primary_key=True
-    )
-    ricoverati_con_sintomi = Column(Integer)
-    terapia_intensiva = Column(Integer)
-    totale_ospedalizzati = Column(Integer)
-    isolamento_domiciliare = Column(Integer)
-    totale_positivi = Column(Integer)
-    variazione_totale_positivi = Column(Integer)
-    nuovi_positivi = Column(Integer)
-    dimessi_guariti = Column(Integer)
-    deceduti = Column(Integer)
-    totale_casi = Column(Integer)
-    tamponi = Column(Integer)
-    note_it = Column(String(100), nullable=True)
-    note_en = Column(String(100), nullable=True)
 
 
 class ItalyProvince(Base):
