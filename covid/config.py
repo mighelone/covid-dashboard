@@ -9,9 +9,7 @@ class Config:
 
 
 class LocalConfig(Config):
-    SQLALCHEMY_DATABASE_URI = (
-        "postgresql+psycopg2://covid:FabrizioCorona@localhost:5432/covid"
-    )
+    SQLALCHEMY_DATABASE_URI = "mysql://root:example@127.0.0.1:3306/covid"
     DEBUG = True
     TESTING = True
 

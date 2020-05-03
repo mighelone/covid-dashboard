@@ -1,18 +1,25 @@
-from typing import Optional, List, Dict, Any, Iterator
 import datetime as dt
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey
-from sqlalchemy.orm import sessionmaker
-import pandas as pd
-import os
 import logging
-from urllib.request import urlopen
+import os
+from typing import Any, Dict, Iterator, List, Optional
 from urllib.error import HTTPError
-from dateutil.parser import parse, ParserError
+from urllib.request import urlopen
 
-from sqlalchemy.orm import Session
+import pandas as pd
+from dateutil.parser import ParserError, parse
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import (
+    Column,
+    Date,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    create_engine,
+)
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Session, sessionmaker
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -97,21 +104,23 @@ class ItalyProvinceCase(Base):
 class WorldCase(Base):
     __tablename__ = "word_case"
 
-    id = Column(Integer, primary_key=True)
-    updated = Column(Date)
+    # id = Column(Integer, primary_key=True)
+    date = Column(Date, primary_key=True)
+    country = Column(String(100), primary_key=True)
+    admin = Column(String(100), primary_key=True)
+    province = Column(String(100), primary_key=True)
+    updated = Column(DateTime)
     confirmed = Column(Integer)
-    confirmed_change = Column(Integer)
+    active = Column(Integer)
+    # confirmed_change = Column(Integer)
     deaths = Column(Integer)
-    deaths_change = Column(Integer)
+    # deaths_change = Column(Integer)
     recovered = Column(Integer)
-    recovered_change = Column(Integer)
+    # recovered_change = Column(Integer)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
-    iso2 = Column(String(4), nullable=True)
-    iso3 = Column(String(4), nullable=True)
-    country_region = Column(String(30), nullable=True)
-    admin_region_1 = Column(String(50), nullable=True)
-    admin_region_2 = Column(String(50), nullable=True)
+    # iso2 = Column(String(4), nullable=True)
+    # iso3 = Column(String(4), nullable=True)
 
 
 def get_db_session(conn: Optional[str] = None):
@@ -170,8 +179,15 @@ def get_singlefile(uri: str) -> Iterator[Dict[str, Any]]:
     with urlopen(uri) as response:
         columns = next(response).decode().strip().split(",")
         for line in response:
-            values = [get_field(value) for value in line.decode().strip().split(",")]
-            yield dict(zip(columns, values))
+            try:
+                values = [
+                    get_field(value)
+                    for value in line.decode("latin-1").strip().split(",")
+                ]
+            except:
+                log.error(f"Error in {line}")
+            else:
+                yield dict(zip(columns, values))
 
 
 def get_singlefile_regioni(

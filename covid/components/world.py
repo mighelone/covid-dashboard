@@ -1,21 +1,9 @@
+import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
-import dash_bootstrap_components as dbc
+from sqlalchemy import func
 
-
-COUNTRIES = {
-    "Italy": 60_461_826,
-    "Spain": 46_754_778,
-    "China (mainland)": 1_439_323_776,
-    "United Kingdom": 67_886_011,
-    "France": 65_273_511,
-    "Germany": 83_783_942,
-    "United States": 331_002_651,
-    "South Korea": 51_269_185,
-    "Netherlands": 17_134_872,
-    "Belgium": 11_589_623,
-}
-
+from .. import db
 
 VALUES = [
     "deaths",
@@ -28,6 +16,14 @@ VALUES = [
 
 
 def get_world_layout():
+    # COUNTRIES = [c[0] for c in db.db.session.query(db.WorldCase.country.distinct()).all()]
+    COUNTRIES = [
+        c[0]
+        for c in db.db.session.query(db.WorldCase.country)
+        .group_by(db.WorldCase.country)
+        .order_by(func.max(db.WorldCase.confirmed).desc())
+        .all()
+    ]
     return [
         dbc.Row(
             [
@@ -40,7 +36,7 @@ def get_world_layout():
                             optionHeight=30,
                             multi=True,
                             searchable=True,
-                            value=list(COUNTRIES),
+                            value=COUNTRIES[:5],
                         ),
                         html.H5("Select value", style={"marginTop": "15px"}),
                         dcc.Dropdown(

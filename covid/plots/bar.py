@@ -1,8 +1,10 @@
 from typing import List, Optional
-from sqlalchemy import func
+
 import pandas as pd
-import plotly.graph_objects as go
 import plotly.express as px
+import plotly.graph_objects as go
+from sqlalchemy import func
+
 from .. import db
 
 PLOT_OVERALL_COLUMNS = [

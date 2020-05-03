@@ -10,22 +10,13 @@ from covid import db
 
 
 @click.group()
-@click.option(
-    "--db-conn",
-    "-d",
-    default="sqlite:///covid.db",
-    envvar="DB_CONN",
-    help="Database connection (sqlalchemy format)",
-)
 @click.pass_context
-def main(ctx: click.Context, db_conn: str):
+def italy(ctx: click.Context):
     """Manage the COVID 19 database for Italy
     """
-    ctx.ensure_object(dict)
-    ctx.obj["db_conn"] = db_conn
 
 
-@main.command()
+@italy.command()
 @click.option(
     "--full/--no-full", default=False, help="Fully populate database from starting date"
 )
@@ -46,7 +37,7 @@ def update(ctx: click.Context, full: bool, date: dt.datetime):
     session.close()
 
 
-@main.command()
+@italy.command()
 @click.pass_context
 def init(ctx: click.Context):
     """
@@ -60,7 +51,3 @@ def init(ctx: click.Context):
     log.info(f"Initializing table italy_province...")
     db.create_table_province(session=session)
     session.close()
-
-
-if __name__ == "__main__":
-    main()
