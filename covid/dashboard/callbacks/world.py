@@ -8,8 +8,8 @@ from dash import Dash
 from dash.dependencies import Input, Output, State
 from sqlalchemy import func
 import json
-from .. import db
-from ..data import get_population_data
+from ... import db
+from ...data import get_population_data
 
 log = logging.getLogger(__name__)
 

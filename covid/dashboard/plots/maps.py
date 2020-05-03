@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from .. import data, db
+from ... import data, db
 
 COLORSCALE = "Pinkyl"
 

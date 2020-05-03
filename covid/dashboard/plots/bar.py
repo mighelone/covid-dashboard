@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from sqlalchemy import func
 
-from .. import db
+from ... import db
 
 PLOT_OVERALL_COLUMNS = [
     "dimessi_guariti",

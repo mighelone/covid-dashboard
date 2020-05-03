@@ -11,8 +11,8 @@ from sqlalchemy import func
 
 import logging
 
-from .. import data  # import get_italy_map_region, get_db_region_data
-from .. import db
+from ... import data
+from ... import db
 from ..plots.maps import generate_map_region, generate_map_province
 from ..plots.bar import (
     generate_bar_plot_overall,
