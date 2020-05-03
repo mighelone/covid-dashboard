@@ -27,6 +27,7 @@ def create_app(testing=False, cli=False) -> Flask:
 
     @app.route("/api")
     def api():
+        # TODO move this to the right method
         from .db import ItalyRegion
         from .api.resources.italy.region import ItalyRegionSchema
 
