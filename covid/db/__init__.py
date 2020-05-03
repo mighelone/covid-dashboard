@@ -21,26 +21,13 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker
 
+from ..extension import db
+from .italy_region import ItalyRegion
+
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
-
-# conn = os.environ.get("DB_CONN", "mysql://root:superset@127.0.0.1:3306/covid")
-
-# engine = create_engine(conn)
-
-# Base = declarative_base()
-db = SQLAlchemy()
 Base = db.Model
-
-
-class ItalyRegion(Base):
-    __tablename__ = "italy_region"
-    # stato = Column(String(50))
-    codice_regione = Column(Integer, primary_key=True)
-    denominazione_regione = Column(String(50))
-    lat = Column(Float)
-    long = Column(Float)
 
 
 class ItalyRegionCase(Base):
@@ -62,22 +49,6 @@ class ItalyRegionCase(Base):
     tamponi = Column(Integer)
     note_it = Column(String(100), nullable=True)
     note_en = Column(String(100), nullable=True)
-
-
-# class ItalyRegionBase(Base):
-#     __tablename__ = "italy_region_base"
-#     cod_istat = Column(Integer, primary_key=True)
-#     regiob = Column(String(50))
-#     superficie = Column(Float)
-#     num_residenti = Column(Integer)
-#     num_comuni = Column(Integer)
-#     num_provincie = Column(Integer)
-#     presidente = Column(String(100))
-#     cod_fiscale = Column(Float)
-#     piva = Column(Float)
-#     pec = Column(String(100))
-#     sito = Column(String(100))
-#     sede = Column(String(100))
 
 
 class ItalyProvince(Base):
@@ -146,31 +117,6 @@ def get_field(field: str):
             except ParserError:
                 result = field
     return result
-
-
-"""
-Abruzzo 13
-Basilicata 17
-P.A. Bolzano 4
-Calabria 18
-Campania 15
-Emilia-Romagna 8
-Friuli Venezia Giulia 6
-Lazio 12
-Liguria 7
-Lombardia 3
-Marche 11
-Molise 14
-Piemonte 1
-Puglia 16
-Sardegna 20
-Sicilia 19
-Toscana 9
-P.A. Trento 4
-Umbria 10
-Valle d'Aosta 2
-Veneto 5
-"""
 
 
 def get_singlefile(uri: str) -> Iterator[Dict[str, Any]]:
