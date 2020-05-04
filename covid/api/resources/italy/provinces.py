@@ -1,6 +1,5 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint
-import marshmallow as maw
 
 from ....db import ItalyProvince, ItalyRegion
 from ....extension import db, ma
