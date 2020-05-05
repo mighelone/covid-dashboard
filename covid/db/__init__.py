@@ -1,32 +1,32 @@
-import datetime as dt
-import logging
 import os
-from typing import Any, Dict, Iterator, List, Optional
+import logging
+import datetime as dt
+from typing import Any, Dict, List, Iterator, Optional
 from urllib.error import HTTPError
 from urllib.request import urlopen
 
 import pandas as pd
-from dateutil.parser import ParserError, parse
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import (
-    Column,
     Date,
-    DateTime,
     Float,
-    ForeignKey,
-    Integer,
+    Column,
     String,
+    Integer,
+    DateTime,
+    ForeignKey,
     create_engine,
 )
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker
+from dateutil.parser import ParserError, parse
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.ext.declarative import declarative_base
 
 from ..extension import db
-from .italy_region import ItalyRegion
-from .italy_region_case import ItalyRegionCase
-from .italy_province import ItalyProvince
-from .italy_province_case import ItalyProvinceCase
 from .world_case import WorldCase
+from .italy_region import ItalyRegion
+from .italy_province import ItalyProvince
+from .italy_region_case import ItalyRegionCase
+from .italy_province_case import ItalyProvinceCase
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)

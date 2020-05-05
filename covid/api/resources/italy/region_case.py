@@ -27,6 +27,11 @@ def register_italy_region_case_api(bp: Blueprint):
             schema=ItalyRegionCaseSchema(many=True), description="Cases per region"
         )
         def get(self, kwargs):
+            """Get the list of cases in Italy by region
+
+            Return the list of cases in Italy by region. Data can be filtered by region and by
+            a starting date.
+            """
             query = db.session.query(
                 *[col for col in ItalyRegionCase.__table__.columns],
                 ItalyRegion.denominazione_regione,

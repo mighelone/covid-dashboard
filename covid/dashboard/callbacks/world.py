@@ -1,13 +1,14 @@
+import json
 import logging
-from typing import List, Dict, Optional, Any
+from typing import Any, Dict, List, Optional
 
+import dash
 import pandas as pd
 import plotly.graph_objects as go
-import dash
 from dash import Dash
 from dash.dependencies import Input, Output, State
 from sqlalchemy import func
-import json
+
 from ... import db
 from ...data import get_population_data
 

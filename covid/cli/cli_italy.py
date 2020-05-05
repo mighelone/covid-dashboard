@@ -1,12 +1,13 @@
-import click
 import datetime as dt
 import logging
+
+import click
 import sqlalchemy
+
+from covid import db
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
-
-from covid import db
 
 
 @click.group()

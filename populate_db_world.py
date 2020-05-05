@@ -1,13 +1,20 @@
+import datetime as dt
+import logging
 import os
+import urllib
 
 #%%
 from pathlib import Path
-import datetime as dt
-import pandas as pd
-import numpy as np
-import urllib
 
-import logging
+import numpy as np
+import pandas as pd
+import sqlalchemy as sql
+
+# %%
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship, sessionmaker
+
+from covid import db
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -69,15 +76,6 @@ map_columns = {
     "AdminRegion1": "admin_region_1",
     "AdminRegion2": "admin_region_2",
 }
-
-
-# %%
-from sqlalchemy.ext.declarative import declarative_base
-import sqlalchemy as sql
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import relationship
-
-from covid import db
 
 
 #%%

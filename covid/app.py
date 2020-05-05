@@ -5,8 +5,8 @@ import dash
 from flask import Flask, jsonify
 from flask_smorest import Api
 
-from .dashboard import configure_dahboard
 from .api import register_api
+from .dashboard import configure_dahboard
 
 # from .db import db
 from .extension import db, ma

@@ -1,11 +1,11 @@
-from flask import Flask
 import dash
 import dash_bootstrap_components as dbc
+from flask import Flask
 
-from .layout import get_layout
 from .callbacks.italy import set_callbacks_italy
-from .callbacks.world import set_callbacks_world
 from .callbacks.multipage import set_callbacks_page
+from .callbacks.world import set_callbacks_world
+from .layout import get_layout
 
 
 def configure_dahboard(app: Flask) -> dash.Dash:
