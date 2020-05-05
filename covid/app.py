@@ -2,11 +2,10 @@ import logging
 import os
 
 import dash
-from flask import Flask, jsonify
-from flask_smorest import Api
+from flask import Flask
 
 from .api import register_api
-from .dashboard import configure_dahboard
+from .dashboard import configure_dashboard
 
 # from .db import db
 from .extension import db, ma
@@ -28,7 +27,7 @@ def create_app(testing=False, cli=False) -> Flask:
 
     register_api(app)
 
-    dash_app = configure_dahboard(app)
+    dash_app: dash.Dash = configure_dashboard(app)
 
     @app.route("/")
     def dash_app():

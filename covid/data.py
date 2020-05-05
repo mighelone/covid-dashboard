@@ -1,13 +1,11 @@
-import datetime as dt
 import json
 import logging
 import os
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 import numpy as np
 import pandas as pd
-from sqlalchemy import func
 
 from . import db
 

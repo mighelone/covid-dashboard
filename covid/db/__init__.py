@@ -1,25 +1,14 @@
 import os
 import logging
 import datetime as dt
-from typing import Any, Dict, List, Iterator, Optional
+from typing import Any, Dict, Iterator, Optional
 from urllib.error import HTTPError
 from urllib.request import urlopen
 
 import pandas as pd
-from sqlalchemy import (
-    Date,
-    Float,
-    Column,
-    String,
-    Integer,
-    DateTime,
-    ForeignKey,
-    create_engine,
-)
+from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from dateutil.parser import ParserError, parse
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.ext.declarative import declarative_base
 
 from ..extension import db
 from .world_case import WorldCase
@@ -30,6 +19,8 @@ from .italy_province_case import ItalyProvinceCase
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
+
+BEGIN_DATE = dt.datetime(2020, 2, 24)
 
 Base = db.Model
 
@@ -179,11 +170,18 @@ def create_table_province(session: Optional[Session] = None):
             session.close()
 
 
-def update_db(session: Session, date: Optional[dt.datetime] = None, from_begin=False):
+def update_db(
+    session: Session,
+    start_date: Optional[dt.datetime] = None,
+    end_date: Optional[dt.datetime] = None,
+    from_begin=False,
+):
 
-    date = date or dt.datetime.now()
-    start_date = dt.datetime(2020, 2, 24) if from_begin else date
-    for day in pd.date_range(start=start_date, end=date, freq="D"):
+    # date = date or dt.datetime.now()
+    start_date = BEGIN_DATE if from_begin else start_date
+    end_date = end_date or start_date
+    # start_date = dt.datetime(2020, 2, 24) if from_begin else date
+    for day in pd.date_range(start=start_date, end=end_date, freq="D"):
         log.info(f"Reading data for {day}")
         try:
             log.info("... reading regioni ...")

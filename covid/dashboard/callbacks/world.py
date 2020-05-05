@@ -1,6 +1,5 @@
-import json
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import dash
 import pandas as pd
@@ -14,7 +13,6 @@ from ...data import get_population_data
 
 log = logging.getLogger(__name__)
 
-# TODO add more countries -> find a good source and match names between the 2 datasets
 """Population of main countries """
 COUNTRIES = get_population_data()
 

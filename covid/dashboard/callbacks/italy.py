@@ -1,17 +1,11 @@
-import datetime as dt
 import logging
-import os
-from typing import List, Optional
 
 import dash
-import pandas as pd
 import plotly.graph_objects as go
 from dash import Dash
 from dash.dependencies import Input, Output, State
-from flask import current_app
-from sqlalchemy import func
 
-from ... import data, db
+from ... import db
 from ..plots.bar import (
     generate_bar_plot_overall,
     generate_bar_plot_provicie,

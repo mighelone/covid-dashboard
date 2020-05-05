@@ -2,7 +2,7 @@ from flask.views import MethodView
 from flask_smorest import Blueprint
 
 from ....db import ItalyRegion
-from ....extension import db, ma
+from ....extension import ma
 
 
 class ItalyRegionSchema(ma.SQLAlchemyAutoSchema):

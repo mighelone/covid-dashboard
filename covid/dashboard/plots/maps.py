@@ -1,6 +1,6 @@
 import datetime as dt
 import logging
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 import pandas as pd
 import plotly.graph_objects as go

@@ -8,7 +8,7 @@ from .callbacks.world import set_callbacks_world
 from .layout import get_layout
 
 
-def configure_dahboard(app: Flask) -> dash.Dash:
+def configure_dashboard(app: Flask) -> dash.Dash:
     dash_app = dash.Dash(
         app.name, server=app, external_stylesheets=[dbc.themes.BOOTSTRAP]
     )
