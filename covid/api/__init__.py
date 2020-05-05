@@ -5,6 +5,7 @@ from .resources.italy import (
     register_italy_regions_api,
     register_italy_provinces_api,
     register_italy_region_case_api,
+    register_italy_province_case_api,
 )
 
 
@@ -18,10 +19,11 @@ def register_api(app: Flask) -> Api:
         Api -- Registered Api
     """
     api = Api(app)
-    api_bp = Blueprint("api", "api", url_prefix="/api", description="Covid-19 Rest API")
-    register_italy_regions_api(api_bp)
-    register_italy_provinces_api(api_bp)
-    register_italy_region_case_api(api_bp)
+    bp = Blueprint("api", "api", url_prefix="/api", description="Covid-19 Rest API")
+    register_italy_regions_api(bp)
+    register_italy_provinces_api(bp)
+    register_italy_region_case_api(bp)
+    register_italy_province_case_api(bp)
 
-    api.register_blueprint(api_bp)
+    api.register_blueprint(bp)
     return api
