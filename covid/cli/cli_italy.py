@@ -55,7 +55,6 @@ def init(ctx: click.Context):
     Run update after to populate the province/region case tables
     """
     session = db.get_db_session(ctx.obj["db_conn"])
-    # session = db.Session(bind=sqlalchemy.create_engine(db_conn))
     log.info(f"Initializing table italy_regione...")
     db.create_table_region(session=session)
     log.info(f"Initializing table italy_province...")
