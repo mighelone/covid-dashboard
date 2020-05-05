@@ -1,13 +1,11 @@
-import logging
 import os
+import logging
 
 import dash
 from flask import Flask
 
 from .api import register_api
 from .dashboard import configure_dashboard
-
-# from .db import db
 from .extension import db, ma
 
 logging.basicConfig(level=logging.INFO)
@@ -25,7 +23,7 @@ def create_app(testing=False, cli=False) -> Flask:
     db.init_app(app)
     ma.init_app(app)
 
-    register_api(app)
+    api = register_api(app)
 
     dash_app: dash.Dash = configure_dashboard(app)
 

@@ -5,8 +5,8 @@ import dash
 import pandas as pd
 import plotly.graph_objects as go
 from dash import Dash
-from dash.dependencies import Input, Output, State
 from sqlalchemy import func
+from dash.dependencies import Input, State, Output
 
 from ... import db
 from ...data import get_population_data

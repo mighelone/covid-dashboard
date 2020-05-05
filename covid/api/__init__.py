@@ -1,9 +1,11 @@
 from flask import Flask
 from flask_smorest import Api, Blueprint, abort
 
-from .resources.italy.provinces import register_italy_provinces_api
-from .resources.italy.region import register_italy_regions_api
-from .resources.italy.region_case import register_italy_region_case_api
+from .resources.italy import (
+    register_italy_regions_api,
+    register_italy_provinces_api,
+    register_italy_region_case_api,
+)
 
 
 def register_api(app: Flask) -> Api:

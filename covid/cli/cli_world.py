@@ -1,6 +1,6 @@
-import datetime as dt
-import logging
 import urllib
+import logging
+import datetime as dt
 
 import click
 import numpy as np

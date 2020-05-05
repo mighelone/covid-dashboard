@@ -1,5 +1,5 @@
-import datetime as dt
 import logging
+import datetime as dt
 
 import click
 

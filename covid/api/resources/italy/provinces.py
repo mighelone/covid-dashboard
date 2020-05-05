@@ -1,7 +1,7 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint
 
-from ....db import ItalyProvince, ItalyRegion
+from ....db import ItalyRegion, ItalyProvince
 from ....extension import db, ma
 
 

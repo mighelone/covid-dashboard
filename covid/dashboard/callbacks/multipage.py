@@ -1,9 +1,9 @@
 from dash import Dash
 from dash.dependencies import Input, Output
 
-from ..components.control_row import get_control_row
-from ..components.plot_row import get_plot_row
 from ..components.world import get_world_layout
+from ..components.plot_row import get_plot_row
+from ..components.control_row import get_control_row
 
 
 def set_callbacks_page(app: Dash):

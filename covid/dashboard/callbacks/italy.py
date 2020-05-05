@@ -3,7 +3,7 @@ import logging
 import dash
 import plotly.graph_objects as go
 from dash import Dash
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, State, Output
 
 from ... import db
 from ..plots.bar import (
@@ -11,7 +11,7 @@ from ..plots.bar import (
     generate_bar_plot_provicie,
     generate_bar_plot_selected,
 )
-from ..plots.maps import generate_map_province, generate_map_region
+from ..plots.maps import generate_map_region, generate_map_province
 
 log = logging.getLogger(__name__)
 

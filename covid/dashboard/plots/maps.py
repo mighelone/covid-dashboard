@@ -1,13 +1,13 @@
-import datetime as dt
 import logging
-from typing import Optional, Union
+import datetime as dt
+from typing import Union, Optional
 
 import pandas as pd
 import plotly.graph_objects as go
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from ... import data, db
+from ... import db, data
 
 COLORSCALE = "Pinkyl"
 
