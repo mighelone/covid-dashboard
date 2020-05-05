@@ -164,25 +164,43 @@ def world(ctx: click.Context):
     "--full/--no-full", default=False, help="Fully populate database from starting date"
 )
 @click.option(
-    "--date", default=None, type=click.DateTime(), help="Last day to update db",
+    "--start_date",
+    default=(dt.datetime.today() - dt.timedelta(days=1)).strftime("%Y-%m-%d"),
+    type=click.DateTime(),
+    help="Starting date for retriving new data to update db",
+)
+@click.option(
+    "--end_date",
+    default=dt.datetime.today().strftime("%Y-%m-%d"),
+    type=click.DateTime(),
+    help="Last day to update db",
 )
 @click.option(
     "--debug/--no-debug", default=False, help="Start a debug session if the code fails."
 )
 @click.pass_context
-def update(ctx: click.Context, full: bool, date: dt.datetime, debug: bool):
+def update(
+    ctx: click.Context,
+    full: bool,
+    start_date: dt.datetime,
+    end_date: dt.datetime,
+    debug: bool,
+):
     """
     Update the world case table with new data
     """
-    date = date or dt.datetime.today() - dt.timedelta(days=1)
-
+    # today = dt.datetime.today()
+    # yesterday = today - dt.timedelta(days=1)
+    # start_date = start_date or yesterday
+    start_date = START_DATE if full else start_date
+    # end_date = end_date or today
+    n_days = (end_date - start_date).days
     session = db.get_db_session(ctx.obj["db_conn"])
-    date = date.date()
-    start_date, n_days = (START_DATE, (date - START_DATE).days) if full else (date, 1)
+    log.info(f"Update DB from {start_date:%Y-%m-%d} to {end_date:%Y-%m-%d}")
 
     for i in range(0, n_days):
         date = start_date + dt.timedelta(days=i)
-        log.info(f"Reading {date}")
+        log.info(f"Reading {date:%Y-%m-%d}")
         path = BASE_PATH.format(date=date)  # / f"{date:%m-%d-%Y}.csv"
 
         try:
