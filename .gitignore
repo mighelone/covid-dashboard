@@ -7,3 +7,4 @@ notebooks
 *.pyc
 covid.db
 *.egg-info
+.tox
