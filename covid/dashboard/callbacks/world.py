@@ -1,19 +1,18 @@
 import logging
-from typing import List, Dict, Optional, Any
+from typing import Any, Dict, List
 
+import dash
 import pandas as pd
 import plotly.graph_objects as go
-import dash
 from dash import Dash
-from dash.dependencies import Input, Output, State
 from sqlalchemy import func
-import json
-from .. import db
-from ..data import get_population_data
+from dash.dependencies import Input, State, Output
+
+from ... import db
+from ...data import get_population_data
 
 log = logging.getLogger(__name__)
 
-# TODO add more countries -> find a good source and match names between the 2 datasets
 """Population of main countries """
 COUNTRIES = get_population_data()
 

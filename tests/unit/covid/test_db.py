@@ -1,10 +1,12 @@
-import pytest
-import datetime as dt
 import os
+import datetime as dt
+
+import pytest
+
+from covid import db
 
 # os.environ["DB_CONN"] = "sqlite:///"
 conn = "sqlite:///"
-from covid import db
 
 
 def test_get_singlefile():

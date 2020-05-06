@@ -1,12 +1,11 @@
-from typing import Dict, Any, List
-import pandas as pd
-import json
 import os
-import datetime as dt
-import numpy as np
+import json
 import logging
+from typing import Any, Dict
 from pathlib import Path
-from sqlalchemy import func
+
+import numpy as np
+import pandas as pd
 
 from . import db
 

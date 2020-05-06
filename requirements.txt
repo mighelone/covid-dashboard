@@ -10,3 +10,7 @@ simplification==0.5.1
 geojson==2.5.0
 flask_sqlalchemy==2.4.1
 gunicorn==20.0.4
+flask-marshmallow==0.12.0
+marshmallow-sqlalchemy==0.23.0
+flask-smorest==0.21.0
+python-dotenv==0.13.0

@@ -1,24 +1,17 @@
-from dash import Dash
-from dash.dependencies import Input, Output, State
-import plotly.graph_objects as go
-import pandas as pd
-import datetime as dt
-from typing import List, Optional
-import os
-import dash
-from flask import current_app
-from sqlalchemy import func
-
 import logging
 
-from .. import data  # import get_italy_map_region, get_db_region_data
-from .. import db
-from ..plots.maps import generate_map_region, generate_map_province
+import dash
+import plotly.graph_objects as go
+from dash import Dash
+from dash.dependencies import Input, State, Output
+
+from ... import db
 from ..plots.bar import (
     generate_bar_plot_overall,
-    generate_bar_plot_selected,
     generate_bar_plot_provicie,
+    generate_bar_plot_selected,
 )
+from ..plots.maps import generate_map_region, generate_map_province
 
 log = logging.getLogger(__name__)
 

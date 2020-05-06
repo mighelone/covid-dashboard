@@ -1,12 +1,12 @@
-import click
-import datetime as dt
 import logging
-import sqlalchemy
+import datetime as dt
+
+import click
+
+from covid import db
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
-
-from covid import db
 
 
 @click.group()
@@ -21,19 +21,29 @@ def italy(ctx: click.Context):
     "--full/--no-full", default=False, help="Fully populate database from starting date"
 )
 @click.option(
-    "--date",
+    "--start_date",
+    default=dt.datetime.today().strftime("%Y-%m-%d"),
+    type=click.DateTime(),
+    help="Starting date for retriving new data to update db",
+)
+@click.option(
+    "--end_date",
     default=dt.datetime.today().strftime("%Y-%m-%d"),
     type=click.DateTime(),
     help="Last day to update db",
 )
 @click.pass_context
-def update(ctx: click.Context, full: bool, date: dt.datetime):
+def update(
+    ctx: click.Context, full: bool, start_date: dt.datetime, end_date: dt.datetime
+):
     """
     Update the province/region case tables with new data
     """
     session = db.get_db_session(ctx.obj["db_conn"])
     log.info(f"Updating tables casi...")
-    db.update_db(date=date, from_begin=full, session=session)
+    db.update_db(
+        start_date=start_date, end_date=end_date, from_begin=full, session=session
+    )
     session.close()
 
 
@@ -45,7 +55,6 @@ def init(ctx: click.Context):
     Run update after to populate the province/region case tables
     """
     session = db.get_db_session(ctx.obj["db_conn"])
-    # session = db.Session(bind=sqlalchemy.create_engine(db_conn))
     log.info(f"Initializing table italy_regione...")
     db.create_table_region(session=session)
     log.info(f"Initializing table italy_province...")
