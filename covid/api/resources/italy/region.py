@@ -22,7 +22,14 @@ def register_italy_regions_api(bp: Blueprint):
     class RegionView(MethodView):
         # @bpb.arguments(ItalyRegionSchema, location="query")
         @bp.response(
-            schema=ItalyRegionSchema(many=True), description="List of Italian regions"
+            schema=ItalyRegionSchema(many=True),
+            description="List of Italian regions",
+            example={
+                "codice_regione": 20,
+                "denominazione_regione": "Sardegna",
+                "lat": 39.2153,
+                "long": 9.11062,
+            },
         )
         def get(self):
             """Get the list of Italian regions

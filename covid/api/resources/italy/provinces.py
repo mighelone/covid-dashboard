@@ -28,7 +28,15 @@ def register_italy_provinces_api(bp: Blueprint):
     class ProvincesView(MethodView):
         @bp.arguments(RegionQueryArg, location="query")
         @bp.response(
-            schema=ItalyProvinceSchema(many=True), description="List of Italian regions"
+            schema=ItalyProvinceSchema(many=True),
+            description="List of Italian regions",
+            example={
+                "codice_provincia": 111,
+                "denominazione_provincia": "Sud Sardegna",
+                "denominazione_regione": "Sardegna",
+                "lat": 39.1664,
+                "long": 8.52624,
+            },
         )
         def get(self, kwargs):
             """Get the list of Italian provinces
