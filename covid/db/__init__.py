@@ -70,7 +70,6 @@ def get_singlefile(uri: str) -> Iterator[Dict[str, Any]]:
 def get_singlefile_regioni(
     date: Optional[dt.datetime] = None,
 ) -> Iterator[Dict[str, Any]]:
-
     date = date.strftime("%Y%m%d") if date else "latest"
 
     uri = f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-regioni-{date}.csv"
@@ -111,7 +110,7 @@ def insert_data(
         log.debug(f"Adding data for {Table.__tablename__} on {date:%Y-%m-%d}...")
         for row in get_file(date):
             log.debug(f"Row -> {row}")
-            row = Table(**{col: row[col] for col in columns})
+            row = Table(**{col: row.get(col, None) for col in columns})
             session.merge(row)
     except:
         # log.exception("Rollback BS session")
