@@ -1,12 +1,17 @@
 import logging
 
 import click
+from dotenv import load_dotenv
 
 from .cli_italy import italy
 from .cli_world import world
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
+
+
+load_dotenv(".env")
+load_dotenv(".flaskenv")
 
 
 @click.group()
