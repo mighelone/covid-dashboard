@@ -34,13 +34,13 @@ concat = func.CONCAT(
 
 def generate_map_region(value: str, data: DataType = None) -> go.Figure:
     """Generate the map region for the given data showing the given value
-    
+
     Arguments:
         value {str} -- Value to visualize
-    
+
     Keyword Arguments:
         data {Optional[dt.date]} -- Date to visualize (default: {None})
-    
+
     Returns:
         go.Figure -- [description]
     """
@@ -64,7 +64,7 @@ def generate_map_region(value: str, data: DataType = None) -> go.Figure:
             "<extra></extra>"
         ),
         customdata=region_day_df[
-            ["tot_by_prov", "totale_positivi", "dimessi_guariti", "deceduti",]
+            ["tot_by_prov", "totale_positivi", "dimessi_guariti", "deceduti"]
         ],
     )
 
@@ -83,13 +83,13 @@ def generate_map_region(value: str, data: DataType = None) -> go.Figure:
 
 def generate_map_province(value: str, data: DataType = None) -> go.Figure:
     """Generate the map region for the given data showing the given value
-    
+
     Arguments:
         value {str} -- Value to visualize
-    
+
     Keyword Arguments:
         data {Optional[dt.date]} -- Date to visualize (default: {None})
-    
+
     Returns:
         go.Figure -- [description]
     """
@@ -109,7 +109,7 @@ def generate_map_province(value: str, data: DataType = None) -> go.Figure:
             "<br>" + value + "=%{z}<br>"
             "<extra></extra>"
         ),
-        customdata=df[["sigla_provincia", "denominazione_regione",]],
+        customdata=df[["sigla_provincia", "denominazione_regione"]],
     )
 
     fig = go.Figure(

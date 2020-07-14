@@ -17,7 +17,8 @@ def get_help_modal():
                                 html.Div(
                                     [
                                         html.P(
-                                            "Clicca su una regione per aggiornare i grafici a destra."
+                                            "Clicca su una regione per aggiornare i"
+                                            " grafici a destra."
                                         )
                                     ],
                                     className="li",
@@ -25,7 +26,10 @@ def get_help_modal():
                                 html.Div(
                                     [
                                         html.P(
-                                            "Il valore rappresentato nella mappa puo essere cambiato selezionando un nuovo valore dal menu a tendina in alto a sinistra"
+                                            "Il valore rappresentato nella mappa puo"
+                                            " essere cambiato selezionando un nuovo"
+                                            " valore dal menu a tendina in alto a"
+                                            " sinistra"
                                         )
                                     ],
                                     className="li",
@@ -33,7 +37,8 @@ def get_help_modal():
                                 html.Div(
                                     [
                                         html.P(
-                                            "Seleziona la data in alto a sinistra per mostrare il valore nella data selezionata."
+                                            "Seleziona la data in alto a sinistra per"
+                                            "mostrare il valore nella data selezionata."
                                         )
                                     ],
                                     className="li",

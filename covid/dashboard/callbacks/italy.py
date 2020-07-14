@@ -18,8 +18,8 @@ log = logging.getLogger(__name__)
 log.info("Loading data...")
 
 MAP_LABELS_REGION = [
-    {"label": l.replace("_", " "), "value": l}
-    for l in [
+    {"label": label.replace("_", " "), "value": label}
+    for label in [
         "ricoverati_con_sintomi",
         "terapia_intensiva",
         "totale_ospedalizzati",
@@ -45,11 +45,11 @@ MAP_LABELS_PROVINCE = [
 
 def update_xaxis(fig: go.Figure, relayout) -> go.Figure:
     """Update fig xaxis with relayout
-    
+
     Arguments:
         fig {go.Figure} -- Plotly fig
         relayout {[type]} -- [description]
-    
+
     Returns:
         go.Figure -- modified figure
     """
@@ -57,7 +57,7 @@ def update_xaxis(fig: go.Figure, relayout) -> go.Figure:
         if "xaxis.range[0]" in relayout:
             fig = fig.update_layout(
                 xaxis=go.layout.XAxis(
-                    range=[relayout["xaxis.range[0]"], relayout["xaxis.range[1]"],]
+                    range=[relayout["xaxis.range[0]"], relayout["xaxis.range[1]"]]
                 )
             )
     return fig
@@ -95,7 +95,7 @@ def set_callbacks_italy(app: Dash):
             Input(component_id="bar-plot-selected", component_property="relayoutData"),
             Input(component_id="reset-button", component_property="n_clicks"),
         ],
-        [State(component_id="dropdown-visualizzazione", component_property="value"),],
+        [State(component_id="dropdown-visualizzazione", component_property="value")],
     )
     def update_bar_plot_overall(
         click_data, relayout, n_clicks: int, visualizzazione: str
@@ -123,13 +123,14 @@ def set_callbacks_italy(app: Dash):
             Input(component_id="bar-plot-overall", component_property="relayoutData"),
             Input(component_id="reset-button", component_property="n_clicks"),
         ],
-        [State(component_id="dropdown-visualizzazione", component_property="value"),],
+        [State(component_id="dropdown-visualizzazione", component_property="value")],
     )
     def update_bar_plot_selected(
         value: str, click_data, relayout, n_clicks, visualizzazione
     ):
         log.debug(
-            f"value={value} click={click_data} n_clicks={n_clicks} vis={visualizzazione}"
+            f"value={value} click={click_data} n_clicks={n_clicks} "
+            "vis={visualizzazione}"
         )
         ctx = dash.callback_context
         if ctx.triggered[0]["prop_id"] == "reset-button.n_clicks" or click_data is None:
@@ -163,12 +164,12 @@ def set_callbacks_italy(app: Dash):
     )
     def toggle_modal(n1: int, n2: int, is_open: bool):
         """This callback is used to open/close the modal help form
-        
+
         Arguments:
             n1 {int} -- help-button clicks
             n2 {int} -- close-help button clicks
-            is_open {bool} -- state 
-        
+            is_open {bool} -- state
+
         Returns:
             [type] -- [description]
         """

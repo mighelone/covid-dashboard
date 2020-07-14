@@ -17,7 +17,7 @@ class ItalyRegionCaseSchema(ma.SQLAlchemyAutoSchema):
 class QueryArgsSchema(ma.SQLAlchemySchema):
     class Meta:
         # necessary for pagination parameters
-        # https://flask-smorest.readthedocs.io/en/latest/arguments.html#multiple-arguments-schemas
+        # https://flask-smorest.readthedocs.io/en/latest/arguments.html#multiple-arguments-schemas # noqa: E501
         unknown = marshmallow.EXCLUDE
 
     start_data = ma.auto_field("data", model=ItalyRegionCase, required=False)
@@ -36,8 +36,8 @@ def register_italy_region_case_api(bp: Blueprint):
         def get(self, kwargs, pagination_parameters):
             """Get the list of cases in Italy by region
 
-            Return the list of cases in Italy by region. Data can be filtered by region and by
-            a starting date.
+            Return the list of cases in Italy by region. Data can be filtered by region
+            and by a starting date.
             """
             query = db.session.query(
                 *[col for col in ItalyRegionCase.__table__.columns],

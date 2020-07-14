@@ -18,7 +18,10 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 
-BASE_PATH = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/{date:%m-%d-%Y}.csv"
+BASE_PATH = (
+    "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/"
+    "csse_covid_19_data/csse_covid_19_daily_reports/{date:%m-%d-%Y}.csv"
+)
 START_DATE = dt.date(2020, 1, 22)
 
 
@@ -64,7 +67,7 @@ def compile_upsert(insert_stmt, compiler, **kwargs):
 
 def read_data(path: str):
 
-    df = pd.read_csv(path)  # , parse_dates=["Last_Update"])
+    df = pd.read_csv(path)
     df = df.rename(
         columns={
             "Lat": "latitude",
@@ -78,7 +81,6 @@ def read_data(path: str):
             "Last Update": "updated",
             "Demised": "deaths",
             "Country/Region": "country",
-            "Country_Region": "country",
             "Province/State": "province",
             "Province_State": "province",
             "Active": "active",
@@ -213,7 +215,7 @@ def update(
 
         try:
             session.execute(Upsert(db.WorldCase, df.to_dict(orient="record")))
-        except:
+        except Exception:
             log.exception(f"Error inserting data on {date}")
             session.rollback()
             if debug:
