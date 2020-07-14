@@ -75,13 +75,11 @@ def read_data(path: str):
             "Deaths": "deaths",
             "Confirmed": "confirmed",
             "active": "active",
-            "Country_Region": "county",
+            "Country_Region": "country",
             "Recovered": "recovered",
             "Last_Update": "updated",
             "Last Update": "updated",
             "Demised": "deaths",
-            "Country/Region": "country",
-            "Province/State": "province",
             "Province_State": "province",
             "Active": "active",
             "Admin2": "admin",
@@ -105,7 +103,6 @@ def read_data(path: str):
     ]
 
     df = df.loc[:, columns]
-
     df["country"] = df["country"].replace(
         to_replace={
             "Korea, South": "South Korea",

@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from dateutil.parser import ParserError, parse
 
 from ..extension import db
+from .world_case import WorldCase  # noqa: F401
 from .italy_region import ItalyRegion
 from .italy_province import ItalyProvince
 from .italy_region_case import ItalyRegionCase
