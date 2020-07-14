@@ -12,5 +12,5 @@ setup(
     version=__version__,
     packages=find_packages(exclude=["tests", "notebooks"]),
     install_requires=requirements,
-    entry_points={"console_scripts": ["update_covid = covid.cli:main"]},
+    entry_points={"console_scripts": ["update-covid = covid.cli:main"]},
 )
