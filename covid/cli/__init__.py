@@ -1,3 +1,4 @@
+import os
 import logging
 
 import click
@@ -18,7 +19,7 @@ load_dotenv(".flaskenv")
 @click.option(
     "--db-conn",
     "-d",
-    default="mysql://root:example@127.0.0.1:3306/covid",
+    default=os.environ.get("DATABASE_URL", "mysql://root:example@127.0.0.1:3306/covid"),
     envvar="DB_CONN",
     help="Database connection (sqlalchemy format)",
 )
