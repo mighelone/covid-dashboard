@@ -16,7 +16,6 @@ VALUES = [
 
 
 def get_world_layout():
-    # COUNTRIES = [c[0] for c in db.db.session.query(db.WorldCase.country.distinct()).all()]
     COUNTRIES = [
         c[0]
         for c in db.db.session.query(db.WorldCase.country)
@@ -47,7 +46,6 @@ def get_world_layout():
                             searchable=True,
                             value=VALUES[0],
                         ),
-                        # html.H5("Relative to the population", style={"marginTop": "15px"}),
                         dcc.Checklist(
                             id="select-normalized",
                             options=[

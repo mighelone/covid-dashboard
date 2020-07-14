@@ -8,7 +8,7 @@ from ..components.control_row import get_control_row
 
 def set_callbacks_page(app: Dash):
     @app.callback(
-        [Output(f"navlink-italy", "active"), Output("navlink-world", "active"),],
+        [Output("navlink-italy", "active"), Output("navlink-world", "active")],
         [Input("url", "pathname")],
     )
     def toggle_active_links(pathname):

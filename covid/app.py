@@ -23,7 +23,7 @@ def create_app(testing=False, cli=False) -> Flask:
     db.init_app(app)
     ma.init_app(app)
 
-    api = register_api(app)
+    register_api(app)
 
     dash_app: dash.Dash = configure_dashboard(app)
 

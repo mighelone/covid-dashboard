@@ -1,8 +1,8 @@
+import marshmallow
 from flask.views import MethodView
 from flask_smorest import Blueprint
-import marshmallow
 
-from ....db import ItalyProvince, ItalyProvinceCase, ItalyRegion
+from ....db import ItalyRegion, ItalyProvince, ItalyProvinceCase
 from ....extension import db, ma
 
 

@@ -45,13 +45,17 @@ update_menu = go.layout.Updatemenu(
 def generate_bar_plot_overall(
     region: str = "Italy", columns: List[str] = PLOT_OVERALL_COLUMNS,
 ):
-    """Generate a stacked bar plot of the given columns for a region or for the whole country
-    
+    """
+    Generate a stacked bar plot of the given columns for a region or for the
+    whole country
+
     Keyword Arguments:
         region {str} -- Region to visualize (default: {"Italy"})
-        columns {list} -- List of columns to plot as stacked bar (default: {["dimessi_guariti","isolamento_domiciliare","ricoverati_con_sintomi",
-            "terapia_intensiva","deceduti",]})
-    
+        columns {list} -- List of columns to plot as stacked bar
+            (default: {["dimessi_guariti","isolamento_domiciliare",
+                "ricoverati_con_sintomi",
+                "terapia_intensiva","deceduti",]})
+
     Returns:
         [type] -- figure
     """

@@ -33,7 +33,7 @@ updatemenu = go.layout.Updatemenu(
             label="Log", method="relayout", args=[{"yaxis.type": "log"}]
         ),
         go.layout.updatemenu.Button(
-            label="Linear", method="relayout", args=[{"yaxis.type": "linear",}]
+            label="Linear", method="relayout", args=[{"yaxis.type": "linear"}]
         ),
     ],
 )
@@ -171,7 +171,7 @@ def update_lines(
     rolling: bool,
     normalized: bool,
 ) -> Dict[str, Any]:
-    log.debug(f"Plot Triggered by new countries selection")
+    log.debug("Plot Triggered by new countries selection")
     old_countries = set([d["name"] for d in fig["data"]])
     log.debug(f"Old countries = {old_countries}")
     countries_set = set(countries)

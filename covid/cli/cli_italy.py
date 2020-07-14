@@ -40,7 +40,7 @@ def update(
     Update the province/region case tables with new data
     """
     session = db.get_db_session(ctx.obj["db_conn"])
-    log.info(f"Updating tables casi...")
+    log.info("Updating tables casi...")
     db.update_db(
         start_date=start_date, end_date=end_date, from_begin=full, session=session
     )
@@ -51,12 +51,12 @@ def update(
 @click.pass_context
 def init(ctx: click.Context):
     """
-    Init the province/region tables with basic data. 
+    Init the province/region tables with basic data.
     Run update after to populate the province/region case tables
     """
     session = db.get_db_session(ctx.obj["db_conn"])
-    log.info(f"Initializing table italy_regione...")
+    log.info("Initializing table italy_regione...")
     db.create_table_region(session=session)
-    log.info(f"Initializing table italy_province...")
+    log.info("Initializing table italy_province...")
     db.create_table_province(session=session)
     session.close()

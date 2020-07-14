@@ -11,7 +11,6 @@ from sqlalchemy.orm import Session, sessionmaker
 from dateutil.parser import ParserError, parse
 
 from ..extension import db
-from .world_case import WorldCase
 from .italy_region import ItalyRegion
 from .italy_province import ItalyProvince
 from .italy_region_case import ItalyRegionCase
@@ -51,8 +50,9 @@ def get_field(field: str):
 
 
 def get_singlefile(uri: str) -> Iterator[Dict[str, Any]]:
-    # assert area in ('regioni', 'province'), "area should be defined as regioni/province"
-    # fname = f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-{area}-{date:%Y%m%d}.csv"
+    # assert area in ('regioni', 'province'), "area should be defined as
+    # regioni/province"
+    # fname = f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-{area}-{date:%Y%m%d}.csv"  # noqa: E501
     with urlopen(uri) as response:
         columns = next(response).decode().strip().split(",")
         for line in response:
@@ -61,7 +61,7 @@ def get_singlefile(uri: str) -> Iterator[Dict[str, Any]]:
                     get_field(value)
                     for value in line.decode("latin-1").strip().split(",")
                 ]
-            except:
+            except Exception:
                 log.error(f"Error in {line}")
             else:
                 yield dict(zip(columns, values))
@@ -70,10 +70,12 @@ def get_singlefile(uri: str) -> Iterator[Dict[str, Any]]:
 def get_singlefile_regioni(
     date: Optional[dt.datetime] = None,
 ) -> Iterator[Dict[str, Any]]:
-
     date = date.strftime("%Y%m%d") if date else "latest"
 
-    uri = f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-regioni-{date}.csv"
+    uri = (
+        "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/"
+        f"dati-regioni/dpc-covid19-ita-regioni-{date}.csv"
+    )
     # https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-regioni-latest.csv
     trentino = []
     for row in get_singlefile(uri):
@@ -94,7 +96,10 @@ def get_singlefile_province(
     date: Optional[dt.datetime] = None,
 ) -> Iterator[Dict[str, Any]]:
     date = date.strftime("%Y%m%d") if date else "latest"
-    uri = f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-province/dpc-covid19-ita-province-{date}.csv"
+    uri = (
+        f"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/"
+        f"dati-province/dpc-covid19-ita-province-{date}.csv"
+    )
     yield from get_singlefile(uri)
 
 
@@ -111,9 +116,9 @@ def insert_data(
         log.debug(f"Adding data for {Table.__tablename__} on {date:%Y-%m-%d}...")
         for row in get_file(date):
             log.debug(f"Row -> {row}")
-            row = Table(**{col: row[col] for col in columns})
+            row = Table(**{col: row.get(col, None) for col in columns})
             session.merge(row)
-    except:
+    except Exception:
         # log.exception("Rollback BS session")
         session.rollback()
         raise
@@ -128,9 +133,10 @@ def insert_data(
 
 def create_table_region(session: Optional[Session] = None):
     """Initialize the italy_region table
-    
+
     Arguments:
-        session {Optional[Session]} -- DB session if none a new one is created and closed 
+        session {Optional[Session]} -- DB session if none a new one is created and
+        closed
     """
     columns = [column.key for column in ItalyRegion.__table__.columns]
     close_session = session is None
@@ -138,7 +144,7 @@ def create_table_region(session: Optional[Session] = None):
     try:
         for row in get_singlefile_regioni():
             session.merge(ItalyRegion(**{col: row[col] for col in columns}))
-    except:
+    except Exception:
         session.rollback()
         raise
     else:
@@ -150,9 +156,10 @@ def create_table_region(session: Optional[Session] = None):
 
 def create_table_province(session: Optional[Session] = None):
     """Initialize the italy_region table
-    
+
     Arguments:
-        session {Optional[Session]} -- DB session if none a new one is created and closed 
+        session {Optional[Session]} -- DB session if none a new one is created
+        and closed
     """
     columns = [column.key for column in ItalyProvince.__table__.columns]
     close_session = session is None
@@ -160,7 +167,7 @@ def create_table_province(session: Optional[Session] = None):
     try:
         for row in get_singlefile_province():
             session.merge(ItalyProvince(**{col: row[col] for col in columns}))
-    except:
+    except Exception:
         session.rollback()
         raise
     else:

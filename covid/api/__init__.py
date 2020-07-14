@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_smorest import Api, Blueprint, abort
+from flask_smorest import Api, Blueprint
 
 from .resources.italy import (
     register_italy_regions_api,

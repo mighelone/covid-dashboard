@@ -1,4 +1,3 @@
-import os
 import datetime as dt
 
 import pytest
@@ -11,7 +10,10 @@ conn = "sqlite:///"
 
 def test_get_singlefile():
     # TODO mock uri
-    uri = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-regioni-20200401.csv"
+    uri = (
+        "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/"
+        "dati-regioni/dpc-covid19-ita-regioni-20200401.csv"
+    )
     rows = list(db.get_singlefile(uri))
 
     assert len(rows) == 21
@@ -19,7 +21,7 @@ def test_get_singlefile():
 
 def test_get_singlefile_province():
     date = dt.datetime(2020, 4, 1)
-    rows = list(db.get_singlefile_province(date))
+    list(db.get_singlefile_province(date))
 
 
 @pytest.fixture
@@ -78,7 +80,7 @@ def test_db_region(session):
     ]
 
 
-def test_db_region(session):
+def test_db_province(session):
     res = (
         session.query(
             db.ItalyProvinceCase.data,
@@ -130,7 +132,7 @@ def test_insert_data_region(session):
     assert len(results) == 20
 
 
-def test_insert_data_region(session):
+def test_insert_data_province(session):
     date = dt.date(2020, 4, 10)
     db.insert_data(
         date=date,

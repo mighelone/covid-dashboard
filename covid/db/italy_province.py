@@ -11,4 +11,7 @@ class ItalyProvince(db.Model):
     long = db.Column(db.Float)
 
     def __repr__(self):
-        return f"<{self.codice_provincia}:{self.denominazione_provincia} ({self.codice_provincia})>"
+        return (
+            f"<{self.codice_provincia}:{self.denominazione_provincia}"
+            f" ({self.codice_provincia})>"
+        )

@@ -13,36 +13,39 @@ log = logging.getLogger(__name__)
 
 data_path = Path(os.path.dirname(__file__)).absolute()
 
-URL = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-regioni-latest.json"
+URL = (
+    "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master"
+    "/dati-json/dpc-covid19-ita-regioni-latest.json"
+)
 
 
 def get_db_region_data(conn: str) -> pd.DataFrame:
     """Get from the DB the pandas DF of the cases by region
-    
+
     Arguments:
         conn {str} -- DB connection
-    
+
     Returns:
         pd.DataFrame -- Resulting DF
     """
-    log.info(f"Importing region data...")
+    log.info("Importing region data...")
     session = db.get_db_session(conn)
     try:
         query = session.query(
             *db.ItalyRegionCase.__table__.columns, db.ItalyRegion.denominazione_regione,
         ).filter(db.ItalyRegionCase.codice_regione == db.ItalyRegion.codice_regione)
         df = pd.DataFrame(query).astype({"data": np.datetime64})
-    except:
+    except Exception:
         raise
     else:
-        log.info(f"... data imported")
+        log.info("... data imported")
     finally:
         session.close()
     return df
 
 
 def get_db_province_data(conn: str) -> pd.DataFrame:
-    log.info(f"Importing province data...")
+    log.info("Importing province data...")
     session = db.get_db_session(conn)
     try:
         query = (
@@ -65,10 +68,10 @@ def get_db_province_data(conn: str) -> pd.DataFrame:
             )
         )
         df = pd.DataFrame(query).astype({"data": np.datetime64})
-    except:
+    except Exception:
         raise
     else:
-        log.info(f"... data imported")
+        log.info("... data imported")
     finally:
         session.close()
     return df
@@ -76,10 +79,10 @@ def get_db_province_data(conn: str) -> pd.DataFrame:
 
 def get_italy_map(selection: str) -> Dict[str, Any]:
     """Read the geojson regional data for Italy
-    
+
     Arguments:
         selection {str} -- Select regioni/province
-    
+
     Returns:
         Dict[str, Any] -- Geojson
     """
